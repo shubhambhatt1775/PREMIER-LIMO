@@ -24,6 +24,7 @@ const imagekitRoutes = require('./routes/imagekit');
 const bookingRoutes = require('./routes/booking');
 const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payment');
+const licenseRoutes = require('./routes/license');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
@@ -31,6 +32,7 @@ app.use('/api/imagekit', imagekitRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/license', licenseRoutes);
 
 
 

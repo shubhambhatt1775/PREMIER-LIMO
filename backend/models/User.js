@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    drivingLicense: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'DrivingLicense'
+    },
     createdAt: {
         type: Date,
         default: Date.now

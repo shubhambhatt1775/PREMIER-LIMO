@@ -27,6 +27,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 
 ### Customer Features
 - 🔐 **User Authentication** - Secure signup/login with JWT
+- 🪪 **Driving License** - Verify user identity with driving license info
 - 🚙 **Car Browsing** - Browse luxury cars with filters and search
 - 📅 **Booking System** - Real-time booking with date selection
 - 💳 **Payment Processing** - Multiple payment methods support
@@ -103,14 +104,16 @@ Car Rental/
 │   │   ├── User.js                # User schema
 │   │   ├── Car.js                 # Car schema
 │   │   ├── Booking.js             # Booking schema
-│   │   └── Payment.js             # Payment schema
+│   │   ├── Payment.js             # Payment schema
+│   │   └── DrivingLicense.js      # License schema
 │   ├── routes/
 │   │   ├── auth.js                # Auth routes
 │   │   ├── car.js                 # Car routes
 │   │   ├── booking.js             # Booking routes
 │   │   ├── payment.js             # Payment routes
 │   │   ├── admin.js               # Admin routes
-│   │   └── imagekit.js            # ImageKit routes
+│   │   ├── imagekit.js            # ImageKit routes
+│   │   └── license.js             # License routes
 │   ├── .env                       # Environment variables
 │   ├── server.js                  # Entry point
 │   ├── seedAdmin.js               # Admin seeder
@@ -198,11 +201,27 @@ The application uses MongoDB with 4 main collections:
   phone: String,
   address: String,
   image: String (profile picture URL),
+  drivingLicense: ObjectId (ref: 'DrivingLicense'),
   createdAt: Date
 }
 ```
 
-#### 2. **Cars Collection**
+#### 2. **Driving License Collection**
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: 'User', required, unique),
+  licenseNumber: String (required, unique),
+  expiryDate: Date (required),
+  issuingCountry: String (required),
+  frontImage: String,
+  backImage: String,
+  status: String (enum: ['pending', 'verified', 'rejected'], default: 'pending'),
+  createdAt: Date
+}
+```
+
+#### 3. **Cars Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -255,37 +274,188 @@ The application uses MongoDB with 4 main collections:
 ### Database Relationships
 
 ```
-┌─────────────┐
-│   Users     │
-│  (1 to N)   │
-└──────┬──────┘
-       │
-       ├──────────────────┐
-       │                  │
-       ▼                  ▼
-┌─────────────┐    ┌─────────────┐
-│  Bookings   │    │  Payments   │
-│             │◄───┤             │
-└──────┬──────┘    └─────────────┘
-       │              (1 to 1)
-       │
-       ▼
-┌─────────────┐
-│    Cars     │
-│  (1 to N)   │
-└─────────────┘
+          ┌──────────────────┐
+          │      Users       │
+          │     (1 to N)     │
+          └────────┬─────────┘
+                   │
+    ┌──────────────┼──────────────┐
+    │              │              │
+    ▼              ▼              ▼
+┌──────────┐  ┌──────────┐  ┌────────────┐
+│ Bookings │  │ Payments │  │  License   │
+│          │◄─┤          │  │  (1 to 1)  │
+└─────┬────┘  └──────────┘  └────────────┘
+      │         (1 to 1)
+      ▼
+┌──────────┐
+│   Cars   │
+│ (1 to N) │
+└──────────┘
 ```
 
 **Relationships:**
-- **Users → Bookings**: One-to-Many (One user can have multiple bookings)
-- **Cars → Bookings**: One-to-Many (One car can have multiple bookings)
-- **Bookings → Payments**: One-to-One (One booking has one payment)
-- **Users → Payments**: One-to-Many (One user can have multiple payments)
+- **Users ↔ License**: **One-to-One** (A user has exactly one driving license record for identity verification).
+- **Users → Bookings**: **One-to-Many** (A user can place multiple car rental reservations over time).
+- **Users → Payments**: **One-to-Many** (A user can make multiple payments corresponding to their bookings).
+- **Cars → Bookings**: **One-to-Many** (A single car can be booked for different periods by different users).
+- **Bookings ↔ Payments**: **One-to-One** (Each specific booking is linked to exactly one payment transaction).
+- **Bookings ↔ Cars**: **Many-to-One** (Multiple booking records can reference the same vehicle).
+- **Bookings ↔ Users**: **Many-to-One** (Multiple booking records can reference the same registered user).
 
 **Join Operations:**
-- Bookings populate `car` and `user` fields
-- Payments populate `booking` and `user` fields
-- Admin stats aggregate bookings by status and calculate revenue
+- `Bookings` use `.populate('car user')` to retrieve full vehicle and customer details.
+- `Payments` use `.populate('booking user')` to reconcile transactions with specific rentals and users.
+- `Users` use `.populate('drivingLicense')` to include verified identity data.
+- `DrivingLicense` use `.populate('userId')` to link license data back to the primary user account.
+- Admin analytics perform cross-collection aggregations to calculate total revenue, popular cars, and customer activity.
+
+---
+
+## � Data Flow Diagrams (DFD)
+
+### 0️⃣ Context Level DFD (Level 0)
+Shows the system boundaries and external entities.
+
+```
+                  ┌──────────────┐
+                  │   ImageKit   │
+                  │     (CDN)    │
+                  └──────▲───────┘
+                         │ Car/User Images
+                         │
+    Booking/Payment Info │  ┌──────────────────┐  Admin Actions
+   ┌─────────────────────┼──┤   Premier Limo   │◄────────────────┐
+   │                     │  │      System      │                 │
+   ▼                     │  └────────▲─────────┘                 │
+┌──────┐                 │           │                           │             ┌───────┐
+│ User │                 │           │ API Requests/Responses    │             │ Admin │
+└──────┘                 │           │                           └─────────────┤       │
+   ▲                     │           │                                         └───────┘
+   │                     │   ┌───────▼────────┐
+   └─────────────────────┼───┤ Payment Gateway│
+       Receipts/Status   │   └────────────────┘
+                         │
+```
+
+### 1️⃣ Level 1 DFD: General Process
+Breaks down the system into its primary functional modules.
+
+```
+       Users         Cars       Bookings      Payments      Licenses
+         ║             ║            ║             ║             ║
+  ┌──────▼──────┐      ║            ║             ║             ║
+  │ 1.0 Auth    │      ║            ║             ║             ║
+  └──────┬──────┘      ║            ║             ║             ║
+         │             ║            ║             ║             ║
+  ┌──────▼──────┐      ║            ║             ║             ║
+  │ 2.0 Fleet   ◄══════╝            ║             ║             ║
+  │ Management  │                   ║             ║             ║
+  └──────┬──────┘                   ║             ║             ║
+         │            ┌─────────────▼─────────────┐             ║
+  ┌──────▼──────┐     │ 3.0 Booking Management    │             ║
+  │ 4.0 Payment ◄═════┤ (Calculations & Status)   │             ║
+  │ Processing  │     └─────────────┬─────────────┘             ║
+  └──────┬──────┘                   │                           ║
+         │            ┌─────────────▼─────────────┐             ║
+  ┌──────▼──────┐     │ 5.0 Profile & License     ◄═════════════╝
+  │ 6.0 Admin   │     │ Management                │
+  │ Analytics   │     └───────────────────────────┘
+  └─────────────┘
+```
+
+### 2️⃣ Level 2 DFD: User Side
+Detailed view of customer interactions.
+
+```
+[User] ───► (2.1 Search/Filter Cars) ───► [Cars DataStore]
+   │                │
+   │                ▼
+   ├────────► (2.2 Select Car & Dates) ───► (2.3 Check Availability)
+   │                                               │
+   │                                               ▼
+   ├────────► (2.4 Submit Booking) ────────► [Bookings DataStore]
+   │                                               │
+   │                                               ▼
+   ├────────► (2.5 Process Payment) ───────► [Payments DataStore]
+   │                                               │
+   │                                               ▼
+   └────────► (2.6 Manage License) ────────► [Licenses DataStore]
+```
+
+### 2️⃣ Level 2 DFD: Admin Side
+Detailed view of administrative operations.
+
+```
+[Admin] ──► (3.1 Add/Edit Vehicles) ───► [Cars DataStore]
+   │                │
+   │                ▼
+   ├────────► (3.2 Manage Bookings) ───► (3.2.1 Approve/Deny) ───► [Bookings DB]
+   │                                               │
+   │                                               ▼
+   ├────────► (3.3 Customer Management) ───► [Users DataStore]
+   │                                               │
+   │                                               ▼
+   └────────► (3.4 Generate Analytics) ────► [Payments/Bookings DB]
+
+
+### 3️⃣ Level 3 DFD: Detailed Booking Lifecycle
+Granular look at the booking-to-payment process.
+
+```
+[User]
+  │
+ (3.1.1: Select Car/Dates) ────► [Cars DB: Check Availability]
+  │
+ (3.1.2: Calculate Amount) ────► [Pricing Engine] ──┐
+  │                                                 │
+ (3.1.3: Submit Request) ──────► [Bookings DB: Status = 'pending']
+                                       │
+                                       ▼
+ [Admin] ──────────────────────► (3.2.1: Review Request)
+                                       │
+             ┌─────────────────────────┴─────────────────────────┐
+             ▼                                                   ▼
+ (3.2.2: Deny Request)                                 (3.2.3: Approve Request)
+             │                                                   │
+ [Status = 'denied']                                   [Status = 'approved']
+                                                                 │
+                                                                 ▼
+ [User Portal] ◄───────────────────────────────────── (3.3.1: Trigger Payment)
+                                                                 │
+                                       ┌─────────────────────────┘
+                                       ▼
+ (3.3.2: Process Payment) ─────► [Payment Gateway] ─────► [Payments DB]
+                                                                 │
+                                       ┌─────────────────────────┘
+                                       ▼
+ (3.3.3: Update Booking) ──────► [Bookings DB: paid = True]
+                                       │
+                                       ▼
+ (3.3.4: Generate PDF) ────────► [Invoice Generator] ───► [User]
+```
+
+### 3️⃣ Level 3 DFD: License Verification Process
+Granular look at user identity verification.
+
+```
+[User]
+  │
+ (5.1.1: Upload Front/Back Images) ──► [ImageKit API] ──► [Image URLs]
+  │                                                            │
+ (5.1.2: Submit Detail Form) ────────► [Licenses DB: Status = 'pending']
+                                              │
+                                              ▼
+ [Admin] ────────────────────────────► (5.2.1: Review Documents)
+                                              │
+                    ┌─────────────────────────┴────────────────────────┐
+                    ▼                                                  ▼
+      (5.2.2: Reject License)                            (5.2.3: Verify License)
+                    │                                                  │
+       [Status = 'rejected']                              [Status = 'verified']
+                    │                                                  │
+          (Notify User) ◄──────────────────────────────────────────────┘
+```
 
 ---
 
@@ -321,6 +491,12 @@ The application uses MongoDB with 4 main collections:
 | GET | `/` | Get all payments | Admin |
 | GET | `/user/:userId` | Get user payments | Yes |
 | POST | `/` | Create payment | Yes |
+
+### License Routes (`/api/license`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/` | Get user license | Yes |
+| POST | `/` | Upsert user license | Yes |
 
 ### Admin Routes (`/api/admin`)
 | Method | Endpoint | Description | Auth Required |
@@ -490,6 +666,45 @@ export default defineConfig({
 
 ---
 
+## 🌐 Deployment (Vercel)
+
+Follow these steps to host your Premier Limo application on **Vercel**.
+
+### 1. Backend Deployment
+Since this is a MERN stack, we recommend deploying the `backend` and `frontend` as separate sites or using a monorepo setup.
+
+#### **Option A: Separate Deployment (Recommended)**
+1. Create a new project on Vercel and link your repository.
+2. Set the **Root Directory** to `backend`.
+3. Add a `vercel.json` in the `/backend` folder:
+   ```json
+   {
+     "version": 2,
+     "builds": [{ "src": "server.js", "use": "@vercel/node" }],
+     "routes": [{ "src": "/(.*)", "dest": "server.js" }]
+   }
+   ```
+4. Configure **Environment Variables** (MONGO_URI, JWT_SECRET, IMAGEKIT_*).
+5. Deploy. Your API will be at `https://your-backend.vercel.app`.
+
+### 2. Frontend Deployment
+1. Create another project on Vercel and link the same repository.
+2. Set the **Root Directory** to `frontend`.
+3. Use **Framework Preset**: `Vite`.
+4. Update `frontend/src/services/api.js` to use your deployed backend URL.
+5. Deploy. Your site will be live!
+
+### 3. Environment Variables for Vercel
+In the Vercel Dashboard, go to **Settings > Environment Variables** and add:
+- `MONGO_URI`
+- `JWT_SECRET`
+- `NODE_ENV=production`
+- `IMAGEKIT_PUBLIC_KEY`
+- `IMAGEKIT_PRIVATE_KEY`
+- `IMAGEKIT_URL_ENDPOINT`
+
+---
+
 ## 📦 Modules & Components
 
 ### Frontend Modules
@@ -624,6 +839,7 @@ This project is licensed under the MIT License.
 - ImageKit for image optimization
 - Framer Motion for smooth animations
 - Lucide React for beautiful icons
+- Antigravity for the amazing understanding of the project
 
 ---
 
@@ -634,3 +850,12 @@ For support, email support@premierlimo.com or open an issue in the repository.
 ---
 
 **Made with ❤️ using MERN Stack**
+
+
+
+**TO DO**
+feedback
+ratings on cars
+pickup and drop 
+live GPS tracking of the cars
+map location FOR pickup and drop

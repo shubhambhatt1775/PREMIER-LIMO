@@ -11,6 +11,20 @@ exports.getCars = async (req, res) => {
     }
 };
 
+// @desc    Get single car
+// @route   GET /api/cars/:id
+exports.getCar = async (req, res) => {
+    try {
+        const car = await Car.findById(req.params.id);
+        if (!car) {
+            return res.status(404).json({ message: 'Car not found' });
+        }
+        res.json(car);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Add new car
 // @route   POST /api/cars
 exports.addCar = async (req, res) => {
