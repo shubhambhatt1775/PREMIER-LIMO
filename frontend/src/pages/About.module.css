@@ -1,0 +1,73 @@
+.aboutPage {
+    padding-top: 90px;
+}
+
+.aboutHero {
+    padding: 100px 0;
+    background: var(--bg-light);
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    max-width: 600px;
+}
+
+.contentSection {
+    padding: 120px 0;
+}
+
+.contentGrid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 6rem;
+}
+
+.textContent h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.textContent p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.15rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.contactInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contactCard {
+    background: var(--bg-light);
+    padding: 2rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.icon {
+    color: var(--accent);
+}
+
+.contactCard h4 {
+    margin-bottom: 0.25rem;
+    font-size: 1rem;
+}
+
+.contactCard p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 992px) {
+    .contentGrid {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+    }
+}

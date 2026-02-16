@@ -1,0 +1,512 @@
+.adminWrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #f4f7fa;
+}
+
+.sidebar {
+    width: 280px;
+    background: #111827;
+    color: #fff;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.sidebarLogo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 3rem;
+    color: #fbbf24;
+}
+
+.sidebarNav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #9ca3af;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.navItem:hover,
+.navActive {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.sidebarFooter {
+    margin-top: auto;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoutBtn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    color: #ef4444;
+    font-weight: 600;
+    transition: 0.2s;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.logoutBtn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.mainContent {
+
+    flex: 1;
+    margin-left: 280px;
+    padding: 2.5rem;
+}
+
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.topBar h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.statCard {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.statInfo span {
+    display: block;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.statInfo h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.statIcon {
+    padding: 0.75rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconBlue {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.iconGreen {
+    background: #f0fdf4;
+    color: #22c55e;
+}
+
+.iconOrange {
+    background: #fff7ed;
+    color: #f59e0b;
+}
+
+.iconPurple {
+    background: #f5f3ff;
+    color: #8b5cf6;
+}
+
+.section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.sectionHeader {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionHeader h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    background: #f9fafb;
+    text-align: left;
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.userCell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.userAvatar {
+    width: 32px;
+    height: 32px;
+    background: #e5e7eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.approved {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.denied {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.viewAllBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.viewAllBtn:hover {
+    text-decoration: underline;
+}
+
+.actions {
+
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionBtn {
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    transition: 0.2s;
+}
+
+.actionBtn:hover {
+    background: #f9fafb;
+}
+
+.approve {
+    color: #16a34a;
+    border-color: #dcfce7;
+}
+
+.deny {
+    color: #dc2626;
+    border-color: #fee2e2;
+}
+
+@media (max-width: 1200px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Fleet Management Styles */
+.fleetContainer {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.primaryBtn {
+    background: #111827;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: 0.2s;
+}
+
+.primaryBtn:hover {
+    background: #000;
+    transform: translateY(-1px);
+}
+
+.filterBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+    gap: 1.5rem;
+}
+
+.searchWrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.searchWrapper svg {
+    position: absolute;
+    left: 1rem;
+    color: #9ca3af;
+}
+
+.searchWrapper input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: white;
+    font-size: 0.95rem;
+}
+
+.filterBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.carCell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.carThumb {
+    width: 60px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #f3f4f6;
+}
+
+.categoryBadge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f3f4f6;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    color: #4b5563;
+}
+
+.featureList {
+    font-size: 0.8rem;
+    color: #6b7280;
+    display: flex;
+    gap: 0.4rem;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.modalForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.formGroup label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.formGroup input,
+.formGroup select {
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.submitBtn {
+    background: #111827;
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.submitBtn:disabled {
+    background: #4b5563;
+    cursor: not-allowed;
+}
+
+.fileUploadWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileLabel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border: 2px dashed #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #f9fafb;
+    color: #6b7280;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.fileLabel:hover {
+    background: #f3f4f6;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+
+    .mainContent {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,228 @@
+.authPage {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    padding-top: 90px;
+    /* Offset for fixed navbar */
+    overflow: hidden;
+    /* Prevent page scrolling */
+}
+
+.authCard {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    width: 100%;
+    max-width: 440px;
+    /* Slimmer card */
+    padding: 2rem;
+    /* Reduced padding */
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+    /* Fit within viewport */
+    overflow-y: auto;
+    /* Allow internal scrolling if content overflows on small screens */
+}
+
+/* Hide scrollbar for cleaner look but keep functionality */
+.authCard::-webkit-scrollbar {
+    width: 4px;
+}
+
+.authCard::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.authHeader {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    /* Reduced margin */
+}
+
+.authHeader h1 {
+    font-size: 1.75rem;
+    /* Smaller h1 */
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+    color: #1a1a1a;
+}
+
+.authHeader p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.errorMessage {
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff3333;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+    border-left: 3px solid #ff3333;
+    text-align: center;
+}
+
+
+.authForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    /* Tighter gap */
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.inputGroup label {
+    font-size: 0.8rem;
+    /* Smaller labels */
+    font-weight: 700;
+    color: #333;
+}
+
+.labelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forgotPass {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputWrapper svg {
+    position: absolute;
+    left: 0.85rem;
+    color: #888;
+}
+
+.inputWrapper input {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    /* Compact inputs */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    background: white;
+}
+
+.inputWrapper input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255, 206, 0, 0.1);
+}
+
+.submitBtn {
+    margin-top: 0.5rem;
+    padding: 0.9rem;
+    background: #0a0a0a;
+    color: white;
+    border-radius: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    transition: 0.3s;
+}
+
+.submitBtn:hover {
+    background: #000;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 1.25rem 0;
+    /* Reduced margin */
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #eee;
+}
+
+.divider span {
+    position: relative;
+    background: white;
+    padding: 0 0.75rem;
+    color: #999;
+    font-size: 0.75rem;
+}
+
+.socialGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+}
+
+.socialBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.7rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: white;
+    transition: 0.2s;
+}
+
+.socialBtn:hover {
+    background: #f9f9f9;
+}
+
+.switchAuth {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.switchAuth a {
+    color: #0a0a0a;
+    font-weight: 700;
+}
+
+@media (max-width: 480px) {
+    .authCard {
+        padding: 1.5rem;
+        max-width: 90%;
+    }
+
+    .authHeader h1 {
+        font-size: 1.5rem;
+    }
+}

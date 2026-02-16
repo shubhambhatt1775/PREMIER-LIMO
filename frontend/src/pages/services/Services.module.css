@@ -1,0 +1,142 @@
+.servicePage {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.hero {
+    height: 60vh;
+    min-height: 400px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.heroContent {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-transform: capitalize;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.contentSection {
+    padding: 80px 0;
+    background: white;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.textContent h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+}
+
+.textContent p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a4a4a;
+    margin-bottom: 1.5rem;
+}
+
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+}
+
+.features li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.features li svg {
+    margin-right: 1rem;
+    color: #c9a25d;
+    /* Accent color */
+}
+
+.imageContent img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.ctaSection {
+    background: #1a1a1a;
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.ctaTitle {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.ctaText {
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.btnPrimary {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: #c9a25d;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.btnPrimary:hover {
+    background: #b08d4b;
+}
+
+@media (max-width: 968px) {
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .title {
+        font-size: 2.5rem;
+    }
+}

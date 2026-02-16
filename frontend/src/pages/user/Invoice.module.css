@@ -1,0 +1,268 @@
+.invoicePage {
+    padding: 120px 0 100px;
+    background: transparent;
+    min-height: 100vh;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.backBtn,
+.printBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.backBtn {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.backBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.printBtn {
+    background: #00ff88;
+    color: #000;
+}
+
+.printBtn:hover {
+    background: #00dd77;
+    transform: translateY(-2px);
+}
+
+.invoiceCard {
+    background: white;
+    color: #1a1a1a;
+    padding: 4rem;
+    border-radius: 4px;
+    /* More paper-like */
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.invoiceHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 2rem;
+}
+
+.brand .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.brand p {
+    color: #666;
+    font-weight: 500;
+}
+
+.invoiceMeta {
+    text-align: right;
+}
+
+.invoiceMeta h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    color: #00ff88;
+}
+
+.metaRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.label {
+    color: #999;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.value {
+    font-weight: 600;
+    min-width: 120px;
+}
+
+.status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: #ff4747;
+    color: white;
+}
+
+.paid {
+    background: #00ff88;
+    color: #000;
+}
+
+.billingSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+}
+
+.billingSection h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+    margin-bottom: 1rem;
+}
+
+.customerName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.billFrom p,
+.billTo p {
+    margin-bottom: 0.25rem;
+    color: #444;
+}
+
+.itemTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4rem;
+}
+
+.itemTable th {
+    text-align: left;
+    padding: 1rem;
+    background: #f8f8f8;
+    color: #999;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.itemTable td {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.itemName {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.itemDates {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.summarySection {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+}
+
+.notes h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    color: #999;
+}
+
+.notes p {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+.totalRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    font-weight: 500;
+    color: #444;
+}
+
+.grandTotal {
+    border-top: 2px solid #1a1a1a;
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+.invoiceFooter {
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 3rem;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.footerLinks {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .invoiceCard,
+    .invoiceCard * {
+        visibility: visible;
+    }
+
+    .invoiceCard {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .invoicePage {
+        padding: 0;
+    }
+}
+
+.loading,
+.error {
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}

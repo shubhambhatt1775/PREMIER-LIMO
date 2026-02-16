@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "home": "HOME",
+        "about": "ABOUT",
+        "services": "SERVICES",
+        "fleet": "FLEET",
+        "faq": "FAQ",
+        "contact": "CONTACT",
+        "login": "Login",
+        "signup": "Sign Up",
+        "dashboard": "Dashboard",
+        "profile": "Profile",
+        "logout": "Logout"
+    },
+    "hero": {
+        "title": "PREMIER LIMO SERVICE",
+        "subtitle": "Experience the ultimate in luxury and comfort with our premium fleet of vehicles.",
+        "cta": "Explore Our Fleet"
+    },
+    "common": {
+        "rent_now": "Rent Now",
+        "view_details": "View Details",
+        "per_day": "/ day"
+    }
+}

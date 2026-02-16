@@ -1,0 +1,82 @@
+.card {
+    background: var(--bg-white);
+    padding: 2.5rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-light);
+    transition: var(--transition);
+    position: relative;
+    cursor: pointer;
+}
+
+.card:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.info h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.info p {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.imageContainer {
+    margin: 2rem 0;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.imageContainer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+.card:hover .imageContainer img {
+    transform: scale(1.05);
+}
+
+.categoryBadge {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: var(--bg-black);
+    color: var(--text-white);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.arrowCircle {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    color: var(--text-dark);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .arrowCircle {
+    transform: translateX(5px);
+}

@@ -1,0 +1,115 @@
+.notFound {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-image: url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=2641&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    overflow: hidden;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    /* Dark overlay to ensure text readability */
+    z-index: 1;
+}
+
+.content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: -50px;
+    /* Slight offset to account for visual center */
+}
+
+.errorCode {
+    font-size: 12rem;
+    line-height: 1;
+    font-weight: 800;
+    color: #FFD700;
+    /* Yellow */
+    margin: 0;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.errorMessage {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+    /* The user requested dark text similar to screenshot, but ensuring readability */
+    /* If the background is dark, we might need to adjust. */
+    /* Let's use a text shadow or just make it white if readability is poor? */
+    /* Actually, let's stick to the screenshot: Dark text. 
+       But on a dark overlay it will be invisible. 
+       Let's assume the user wants it to look like the screenshot. 
+       The screenshot has a LIGHT road in the middle. 
+       I will set text color to #1a1a1a but give it a light glow/stroke if needed, 
+       OR just rely on the road being light. 
+       Actually, safety first: I will make it white or #f0f0f0 to be readable on the overlay. 
+       Wait, the screenshot explicitly has "Page Not Found" in dark text. 
+       Okay, I will risk it with #1e1e1e (dark grey) and maybe a subtle white shadow.
+    */
+    color: #1a1a1a;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    /* Halo to make it pop against dark bg */
+}
+
+/* Better approach: Make it standard white for our design system unless forced? 
+   The user said "make this page" and provided a screenshot. 
+   The screenshot is the source of truth. 
+   "Page Not Found" is dark. 
+   The background road is light grey. 
+   My image has a light road.
+   So dark text is correct.
+*/
+
+.subMessage {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    font-weight: 400;
+    max-width: 600px;
+}
+
+.homeBtn {
+    padding: 1rem 2.5rem;
+    background: #111;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.homeBtn:hover {
+    background: #FFD700;
+    color: #111;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .errorCode {
+        font-size: 8rem;
+    }
+
+    .errorMessage {
+        font-size: 2rem;
+    }
+}

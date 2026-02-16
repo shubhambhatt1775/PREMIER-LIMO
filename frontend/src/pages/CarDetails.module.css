@@ -1,0 +1,304 @@
+.detailsPage {
+    padding-top: 100px;
+    background-color: var(--bg-light);
+    min-height: 100vh;
+}
+
+.detailsPage .container {
+    padding-bottom: 4rem;
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.backBtn:hover {
+    color: var(--accent);
+}
+
+.contentGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+.visualSection {
+    position: relative;
+    /* Sticky implementation if needed */
+}
+
+.mainImageWrapper {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--surface);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.mainImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.mainImage:hover {
+    transform: scale(1.02);
+}
+
+.categoryBadge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    z-index: 2;
+}
+
+.galleryGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.galleryItem {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+}
+
+.galleryItem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.galleryItem:hover img {
+    transform: scale(1.05);
+}
+
+.galleryOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    z-index: 2;
+    transition: background 0.3s;
+}
+
+.galleryItem:hover .galleryOverlay {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.infoSection {
+    padding-top: 1rem;
+}
+
+.carTitle {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 2rem;
+}
+
+.priceCard {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.priceLabel {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+}
+
+.priceValue {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.priceValue span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.bookBtn {
+    background: var(--primary);
+    color: var(--text-light);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.bookBtn:hover {
+    background: #000;
+    transform: translateY(-2px);
+}
+
+.specsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.specItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.specItem svg {
+    color: var(--accent);
+}
+
+.specText label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+}
+
+.specText span {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.featuresSection h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+.featureList {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.featureList li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    background: rgba(0, 0, 0, 0.03);
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+}
+
+.featureList li svg {
+    color: var(--success);
+}
+
+.insuranceNote {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.insuranceNote svg {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+@media (max-width: 992px) {
+    .contentGrid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .mainImageWrapper {
+        aspect-ratio: 4/3;
+    }
+}
+
+@media (max-width: 768px) {
+    .detailsPage {
+        padding-top: 80px;
+    }
+
+    .carTitle {
+        font-size: 1.8rem;
+    }
+
+    .priceCard {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .bookBtn {
+        width: 100%;
+    }
+
+    .specsGrid {
+        grid-template-columns: 1fr;
+    }
+}

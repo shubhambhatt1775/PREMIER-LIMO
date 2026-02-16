@@ -1,0 +1,114 @@
+.nav {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    height: fit-content;
+    min-height: 500px;
+    position: sticky;
+    top: 100px;
+    /* Offset for main navbar */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.navContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 0;
+}
+
+.navLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.navLink:hover {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-dark);
+}
+
+.active {
+    background: var(--primary) !important;
+    color: var(--text-light) !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logoutBtn {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.05);
+    font-weight: 600;
+    width: 100%;
+    margin-top: 4rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.logoBtn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+@media (max-width: 768px) {
+    .nav {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-light);
+        padding: 1rem 0;
+        position: relative;
+        top: 0;
+        overflow-x: auto;
+    }
+
+    .navContainer {
+        flex-direction: row;
+        width: 100%;
+        gap: 1rem;
+        padding: 0 1rem;
+        overflow-x: auto;
+    }
+
+    .navLinks {
+        flex-direction: row;
+    }
+
+    .navLink span,
+    .logoutBtn span {
+        display: none;
+    }
+
+    .navLink {
+        padding: 0.75rem;
+        justify-content: center;
+    }
+
+    .logoutBtn {
+        margin-top: 0;
+        width: auto;
+        padding: 0.75rem;
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "home": "INICIO",
+        "about": "SOBRE NOSOTROS",
+        "services": "SERVICIOS",
+        "fleet": "FLOTA",
+        "faq": "FAQ",
+        "contact": "CONTACTO",
+        "login": "Iniciar Sesión",
+        "signup": "Registrarse",
+        "dashboard": "Panel",
+        "profile": "Perfil",
+        "logout": "Cerrar Sesión"
+    },
+    "hero": {
+        "title": "SERVICIO DE LIMUSINA PREMIER",
+        "subtitle": "Experimente lo último en lujo y comodidad con nuestra flota premium de vehículos.",
+        "cta": "Explorar Nuestra Flota"
+    },
+    "common": {
+        "rent_now": "Alquilar Ahora",
+        "view_details": "Ver Detalles",
+        "per_day": "/ día"
+    }
+}

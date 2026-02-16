@@ -1,0 +1,108 @@
+.carsPage {
+    padding: 160px 0 100px;
+    background: transparent;
+    color: var(--text-light);
+    min-height: 100vh;
+}
+
+.header {
+    margin-bottom: 6rem;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -2px;
+}
+
+.header p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.fleetFilters {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.fleetFilters button {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: var(--transition);
+}
+
+.activeFilter {
+    color: var(--accent) !important;
+}
+
+.activeFilter::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+}
+
+.carGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 3rem;
+}
+
+.loading,
+.noCars {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 100px 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+}
+
+
+@media (max-width: 992px) {
+    .carGrid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .carsPage {
+        padding: 120px 0 60px;
+    }
+
+    .header h1 {
+        font-size: 2.5rem;
+    }
+
+    .carGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .fleetFilters {
+        gap: 1.5rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        justify-content: flex-start;
+    }
+
+    .fleetFilters button {
+        white-space: nowrap;
+    }
+}

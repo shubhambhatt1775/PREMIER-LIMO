@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "home": "ACCUEIL",
+        "about": "À PROPOS",
+        "services": "SERVICES",
+        "fleet": "FLOTTE",
+        "faq": "FAQ",
+        "contact": "CONTACT",
+        "login": "Connexion",
+        "signup": "S'inscrire",
+        "dashboard": "Tableau de Bord",
+        "profile": "Profil",
+        "logout": "Déconnexion"
+    },
+    "hero": {
+        "title": "SERVICE DE LIMOUSINE PREMIER",
+        "subtitle": "Découvrez le summum du luxe et du confort avec notre flotte de véhicules haut de gamme.",
+        "cta": "Explorer la Flotte"
+    },
+    "common": {
+        "rent_now": "Louer",
+        "view_details": "Voir les Détails",
+        "per_day": "/ jour"
+    }
+}

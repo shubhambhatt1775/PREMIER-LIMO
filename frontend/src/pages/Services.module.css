@@ -1,0 +1,137 @@
+.servicesPage {
+    padding-top: 100px;
+    background: transparent;
+    color: white;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 5rem;
+    padding: 0 20px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0.8;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 3rem;
+    margin-bottom: 5rem;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    height: 400px;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.card:hover img {
+    transform: scale(1.1);
+}
+
+.cardOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+}
+
+.card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.card p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+}
+
+.learnMore {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent, #c9a25d);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.otherServices {
+    padding: 5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.listGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.serviceItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.serviceItem:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.iconWrapper {
+    background: var(--accent, #c9a25d);
+    padding: 0.8rem;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+}
+
+.serviceInfo h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.serviceInfo p {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .header h1 {
+        font-size: 2.5rem;
+    }
+}

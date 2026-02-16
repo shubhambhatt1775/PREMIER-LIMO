@@ -1,0 +1,25 @@
+{
+    "nav": {
+        "home": "STARTSEITE",
+        "about": "ÜBER UNS",
+        "services": "LEISTUNGEN",
+        "fleet": "FLOTTE",
+        "faq": "FAQ",
+        "contact": "KONTAKT",
+        "login": "Anmelden",
+        "signup": "Registrieren",
+        "dashboard": "Dashboard",
+        "profile": "Profil",
+        "logout": "Abmelden"
+    },
+    "hero": {
+        "title": "PREMIER LIMOUSINENSERVICE",
+        "subtitle": "Erleben Sie ultimativen Luxus und Komfort mit unserer Premium-Fahrzeugflotte.",
+        "cta": "Flotte Entdecken"
+    },
+    "common": {
+        "rent_now": "Jetzt Mieten",
+        "view_details": "Details Ansehen",
+        "per_day": "/ tag"
+    }
+}
