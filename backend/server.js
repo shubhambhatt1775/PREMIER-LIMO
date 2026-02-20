@@ -31,6 +31,16 @@ app.get('/', (req, res) => {
     res.send('LuxDrive Backend API is running...');
 });
 
+// Health Check Route
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'active',
+        message: 'Premier Limo API is healthy',
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        timestamp: new Date()
+    });
+});
+
 // Import Routes
 const authRoutes = require('./routes/auth');
 const carRoutes = require('./routes/car');
