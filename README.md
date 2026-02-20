@@ -29,12 +29,12 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 🔐 **User Authentication** - Secure signup/login with JWT and **Social Auth (Google/Facebook)**
 - 🔔 **Push Notifications** - Real-time browser notifications for booking status and alerts
 - 📡 **Live GPS Tracking** - Real-time location sharing during active rentals
-
+- 💳 **Stripe Payment Gateway** - Real-world secure payment integration with Stripe Checkout
+- 🚀 **High-Performance Caching** - In-memory data acceleration using `node-cache`
 - 🪪 **Driving License** - Verify user identity with driving license info
 - 🚙 **Car Browsing** - Browse luxury cars with filters and search
 - 📅 **Booking System** - Real-time booking with date selection
-- 💳 **Payment Processing** - Multiple payment methods support
-- 📄 **Invoice Generation** - Downloadable/printable invoices
+-  **Invoice Generation** - Downloadable/printable invoices
 - 👤 **Profile Management** - Update profile with image upload
 - 📊 **SaaS-Level Analytics** - Comprehensive data visualizations including:
     - Monthly Revenue & Booking Trends
@@ -42,14 +42,13 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
     - Revenue per Category (Donut Pie Chart)
     - Customer Growth (Step Line Chart)
     - Booking Cancellation Rate (Operational Pie Chart)
-- 🧠 **Smart Availability** - Date-based overlap checks prevent double bookings; booked dates visible in the booking modal
+- 🧠 **Smart Availability** - Date-based overlap checks prevent double bookings
 - 💰 **Partial Refund Policy** - Automated time-based cancellation rules:
     - > 48h before pickup: **100% Refund**
     - 24h - 48h before pickup: **80% Partial Refund**
     - < 24h before pickup: **Cancellation locked**
-- � **SaaS-Level Analytics** - Comprehensive data visualizations including:
 - ⭐ **Rating & Reviews** - Rate and review cars after successful rentals
-- 🗺️ **Map-Based Locations** - Choose pickup/dropoff points on an interactive map with auto-geocoding
+- 🗺️ **Map-Based Locations** - Choose pickup/dropoff points on an interactive map
 - 🌍 **Multi-language** - Support for English, Spanish, French, German
 - 📱 **Responsive Design** - Optimized for all devices
 - 💬 **Real-time Chat** - Chat with support admin in real-time
@@ -113,6 +112,8 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 | **ImageKit** | 6.0.0 | Image CDN & upload |
 | **Socket.io** | 4.8.1 | Real-time communication |
 | **web-push** | 3.6.7 | Push Notification protocol |
+| **node-cache** | latest | In-memory caching layer |
+| **stripe** | latest | Payment gateway integration |
 | **google-auth-library** | 10.5.0 | Google OAuth verification |
 
 
@@ -779,21 +780,20 @@ IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
 IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
 IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
 
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_test_...
+FRONTEND_URL=http://localhost:5173
+
 # Push Notifications (VAPID)
 VAPID_PUBLIC_KEY=your_public_key
 VAPID_PRIVATE_KEY=your_private_key
-VAPID_EMAIL=mailto:admin@example.com
-
-# Social Auth
-GOOGLE_CLIENT_ID=your_id
-FACEBOOK_APP_ID=your_id
+MAILTO=mailto:admin@example.com
 ```
 
 ### Frontend `.env`
 ```env
 VITE_API_URL=http://localhost:5000/api
-VITE_GOOGLE_CLIENT_ID=your_id
-VITE_FACEBOOK_APP_ID=your_id
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
 VITE_VAPID_PUBLIC_KEY=your_key
 VITE_SOCKET_URL=http://localhost:5000
 ```

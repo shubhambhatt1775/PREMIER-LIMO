@@ -17,6 +17,7 @@ import UserLicense from './pages/user/UserLicense';
 import UserPayments from './pages/user/UserPayments';
 import UserSettings from './pages/user/UserSettings';
 import Payment from './pages/user/Payment';
+import PaymentSuccess from './pages/user/PaymentSuccess';
 import Invoice from './pages/user/Invoice';
 import NotFound from './pages/NotFound';
 import CorporateTravel from './pages/services/CorporateTravel';
@@ -80,6 +81,7 @@ const AppContent = () => {
             <Route path="settings" element={<UserSettings />} />
           </Route>
           <Route path="/payment" element={<Payment />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/invoice/:bookingId" element={<Invoice />} />
           <Route path="/services/corporate-travel" element={<CorporateTravel />} />
           <Route path="/services/airport-transfers" element={<AirportTransfers />} />

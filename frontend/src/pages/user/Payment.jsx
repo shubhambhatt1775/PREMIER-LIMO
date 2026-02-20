@@ -5,6 +5,9 @@ import { CreditCard, ShieldCheck, ChevronRight, AlertCircle, CheckCircle2, Lock 
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Payment.module.css';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const Payment = () => {
     const location = useLocation();
@@ -15,12 +18,6 @@ const Payment = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(null);
-    const [cardData, setCardData] = useState({
-        number: '',
-        name: '',
-        expiry: '',
-        cvv: ''
-    });
 
     useEffect(() => {
         if (!booking) {
@@ -34,24 +31,19 @@ const Payment = () => {
         setError(null);
 
         try {
-            // Simulate payment processing...
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            const paymentData = {
+            const { data } = await api.post('/payments/create-checkout-session', {
                 bookingId: booking._id,
-                userId: user._id,
                 amount: booking.totalAmount,
-                paymentMethod: 'Credit Card',
-                transactionId: 'TXN-' + Math.random().toString(36).substr(2, 9).toUpperCase()
-            };
+                carName: booking.carName
+            });
 
-            await api.post('/payments', paymentData);
-            setSuccess(true);
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 4000);
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                setError('Failed to create payment session. Please try again.');
+            }
         } catch (err) {
-            setError('Payment failed. Please check your card details and try again.');
+            setError(err.response?.data?.message || 'Payment failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -135,70 +127,33 @@ const Payment = () => {
                                         </div>
                                     )}
 
-                                    <form onSubmit={handlePayment} className={styles.form}>
-                                        <div className={styles.formGroup}>
-                                            <label>Cardholder Name</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder="JOHN DOE"
-                                                value={cardData.name}
-                                                onChange={e => setCardData({ ...cardData, name: e.target.value.toUpperCase() })}
-                                            />
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <label>Card Number</label>
-                                            <div className={styles.inputIconWrapper}>
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    placeholder="0000 0000 0000 0000"
-                                                    maxLength="19"
-                                                    value={cardData.number}
-                                                    onChange={e => setCardData({ ...cardData, number: e.target.value.replace(/\s?/g, '').replace(/(\d{4})/g, '$1 ').trim() })}
-                                                />
-                                                <Lock size={16} className={styles.inputIcon} />
-                                            </div>
-                                        </div>
-                                        <div className={styles.formRow}>
-                                            <div className={styles.formGroup}>
-                                                <label>Expiry Date</label>
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    placeholder="MM / YY"
-                                                    maxLength="5"
-                                                    value={cardData.expiry}
-                                                    onChange={e => setCardData({ ...cardData, expiry: e.target.value })}
-                                                />
-                                            </div>
-                                            <div className={styles.formGroup}>
-                                                <label>CVV</label>
-                                                <input
-                                                    type="password"
-                                                    required
-                                                    placeholder="***"
-                                                    maxLength="3"
-                                                    value={cardData.cvv}
-                                                    onChange={e => setCardData({ ...cardData, cvv: e.target.value })}
-                                                />
-                                            </div>
-                                        </div>
+                                    <div className={styles.stripeInfo}>
+                                        <p>You will be redirected to <strong>Stripe Secure Checkout</strong> to complete your payment.</p>
+                                        <ul className={styles.features}>
+                                            <li><ShieldCheck size={16} /> PCI Compliant & Secure</li>
+                                            <li><ShieldCheck size={16} /> All major cards supported</li>
+                                            <li><ShieldCheck size={16} /> Instant confirmation</li>
+                                        </ul>
+                                    </div>
 
-                                        <button
-                                            type="submit"
-                                            className={styles.submitBtn}
-                                            disabled={loading}
-                                        >
-                                            {loading ? 'Processing...' : `Pay $${booking.totalAmount}`}
-                                            {!loading && <ChevronRight size={20} />}
-                                        </button>
+                                    <button
+                                        onClick={handlePayment}
+                                        className={styles.submitBtn}
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Initializing Stripe...' : `Checkout with Stripe`}
+                                        {!loading && <ChevronRight size={20} />}
+                                    </button>
 
-                                        <p className={styles.disclaimer}>
-                                            By clicking "Pay", you agree to our terms and conditions.
-                                            All transactions are secure and encrypted.
-                                        </p>
-                                    </form>
+                                    <div className={styles.stripeBranding}>
+                                        <Lock size={12} />
+                                        <span>Powered by Stripe</span>
+                                    </div>
+
+                                    <p className={styles.disclaimer}>
+                                        By clicking "Checkout with Stripe", you agree to our terms and conditions.
+                                        Your payment information is processed securely by Stripe.
+                                    </p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
