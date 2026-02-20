@@ -48,6 +48,16 @@ const bookingSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    pickupLocation: {
+        address: String,
+        lat: Number,
+        lng: Number
+    },
+    dropoffLocation: {
+        address: String,
+        lat: Number,
+        lng: Number
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -37,6 +37,7 @@
     font-weight: 500;
     transition: all 0.3s ease;
     text-decoration: none;
+    position: relative;
 }
 
 .navLink:hover {
@@ -74,26 +75,38 @@
 
 @media (max-width: 768px) {
     .nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
         width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-light);
-        padding: 1rem 0;
-        position: relative;
-        top: 0;
-        overflow-x: auto;
+        height: 70px;
+        min-height: auto;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(20px);
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px 20px 0 0;
+        padding: 0;
+        z-index: 1000;
+        top: auto;
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.3);
     }
 
     .navContainer {
         flex-direction: row;
+        height: 100%;
+        gap: 0;
+        padding: 0 5px;
+        justify-content: space-between;
+        align-items: center;
         width: 100%;
-        gap: 1rem;
-        padding: 0 1rem;
-        overflow-x: auto;
     }
 
     .navLinks {
         flex-direction: row;
+        flex: 5;
+        justify-content: space-around;
+        gap: 0;
     }
 
     .navLink span,
@@ -102,13 +115,55 @@
     }
 
     .navLink {
-        padding: 0.75rem;
+        padding: 5px;
+        flex-direction: column;
+        gap: 5px;
+        color: rgba(255, 255, 255, 0.5);
+        flex: 1;
+        display: flex;
         justify-content: center;
+        align-items: center;
+    }
+
+    .navLink svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .active {
+        background: transparent !important;
+        color: #00ff88 !important;
+        box-shadow: none;
+        transform: translateY(-2px);
+    }
+
+    .active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        width: 4px;
+        height: 4px;
+        background: #00ff88;
+        border-radius: 50%;
     }
 
     .logoutBtn {
+        flex: 1;
         margin-top: 0;
         width: auto;
-        padding: 0.75rem;
+        padding: 5px;
+        background: transparent;
+        color: #ff4747;
+        margin-left: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .logoutBtn svg {
+        width: 20px;
+        height: 20px;
     }
 }

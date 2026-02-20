@@ -80,3 +80,24 @@
 .card:hover .arrowCircle {
     transform: translateX(5px);
 }
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.star {
+    color: #fbbf24;
+}
+
+.ratingValue {
+    font-weight: 700;
+    color: #111827;
+}
+
+.totalReviews {
+    color: #6b7280;
+}
+

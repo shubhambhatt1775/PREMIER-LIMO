@@ -34,6 +34,8 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 📄 **Invoice Generation** - Downloadable/printable invoices
 - 👤 **Profile Management** - Update profile with image upload
 - 📊 **Dashboard** - Track bookings, payments, and history
+- ⭐ **Rating & Reviews** - Rate and review cars after successful rentals
+- 🗺️ **Map-Based Locations** - Choose pickup/dropoff points on an interactive map with auto-geocoding
 - 🌍 **Multi-language** - Support for English, Spanish, French, German
 - 📱 **Responsive Design** - Optimized for all devices
 
@@ -68,6 +70,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 | **i18next** | 25.8.10 | Internationalization |
 | **react-i18next** | 16.5.4 | React i18n bindings |
 | **Lucide React** | 0.564.0 | Icon library |
+| **Leaflet / React Leaflet** | 4.2.1 | Maps & Geolocation |
 | **React Easy Crop** | 5.5.6 | Image cropping |
 
 ### Backend
@@ -253,11 +256,35 @@ The application uses MongoDB with 4 main collections:
   totalAmount: Number (required),
   status: String (enum: ['pending', 'approved', 'denied', 'completed', 'cancelled']),
   paid: Boolean (default: false),
+  pickupLocation: {
+    address: String,
+    lat: Number,
+    lng: Number
+  },
+  dropoffLocation: {
+    address: String,
+    lat: Number,
+    lng: Number
+  },
   createdAt: Date
 }
 ```
 
-#### 4. **Payments Collection**
+#### 4. **Reviews Collection**
+```javascript
+{
+  _id: ObjectId,
+  booking: ObjectId (ref: 'Booking'),
+  car: ObjectId (ref: 'Car'),
+  user: ObjectId (ref: 'User'),
+  userName: String,
+  rating: Number (1-5),
+  comment: String,
+  createdAt: Date
+}
+```
+
+#### 5. **Payments Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -497,6 +524,13 @@ Granular look at user identity verification.
 |--------|----------|-------------|---------------|
 | GET | `/` | Get user license | Yes |
 | POST | `/` | Upsert user license | Yes |
+
+### Review Routes (`/api/reviews`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/` | Submit a car review | Yes |
+| GET | `/car/:carId` | Get reviews for a car | No |
+| GET | `/check/:bookingId`| Check if booking reviewed| Yes |
 
 ### Admin Routes (`/api/admin`)
 | Method | Endpoint | Description | Auth Required |
@@ -841,11 +875,6 @@ This project is licensed under the MIT License.
 - Lucide React for beautiful icons
 - Antigravity for the amazing understanding of the project
 
----
-
-## 📞 Support
-
-For support, email support@premierlimo.com or open an issue in the repository.
 
 ---
 
@@ -854,8 +883,7 @@ For support, email support@premierlimo.com or open an issue in the repository.
 
 
 **TO DO**
-feedback
-ratings on cars
-pickup and drop 
-live GPS tracking of the cars
-map location FOR pickup and drop
+
+- [ ] Live GPS tracking of the cars
+- [ ] In-app chat support
+- [ ] Push notifications for booking updates

@@ -175,6 +175,27 @@
     border-color: var(--text-dark);
 }
 
+.handoverBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: var(--primary);
+    color: var(--text-light);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.handoverBtn:hover {
+    background: #000;
+    transform: translateY(-2px);
+}
+
 .waitingMsg {
     display: flex;
     align-items: center;
@@ -220,3 +241,244 @@
     color: var(--text-muted);
     margin-bottom: 2rem;
 }
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modalContent {
+    background: white;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    color: #1a1a1a;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.modalHeader h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.closeBtn:hover {
+    background: #f0f0f0;
+}
+
+.handoverSections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.handoverBox {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid #eee;
+}
+
+.handoverBox h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1a1a1a;
+}
+
+.otpAction {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+.otpDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.otpLabel {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.otpValue {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: #000;
+}
+
+.verifiedBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.infoText {
+    font-size: 0.9rem;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.tabContainer {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+}
+
+.tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.activeTab {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.historyCard {
+    border-left: 4px solid var(--success);
+}
+
+.completedBadge {
+    font-size: 0.8rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+.historyId {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+.historyTimes {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.historyTimes p {
+    margin: 0.25rem 0;
+}
+
+/* Review Modal Styles */
+.reviewBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.reviewBody h3 {
+    font-size: 1.1rem;
+    color: #374151;
+    margin: 0;
+}
+
+.starRating {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 2.5rem;
+}
+
+.starActive {
+    color: #fbbf24;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.starInactive {
+    color: #d1d5db;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.reviewText {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.rateBtn {
+    margin-top: 1rem;
+    width: 100%;
+    padding: 0.6rem;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rateBtn:hover {
+    background: #e5e7eb;
+}
+

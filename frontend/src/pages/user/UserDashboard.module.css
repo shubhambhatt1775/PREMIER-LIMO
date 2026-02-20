@@ -24,5 +24,7 @@
 
     .dashboardLayout {
         padding-top: 1rem;
+        padding-bottom: 80px;
+        /* Space for bottom nav */
     }
 }

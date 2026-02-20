@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
     LayoutDashboard, Briefcase, Calendar, Settings,
-    Bell, Search, ChevronRight, LogOut, CreditCard
+    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +19,7 @@ const AdminDashboard = () => {
     const [requests, setRequests] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [payments, setPayments] = useState([]);
+    const [rideHistory, setRideHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statsData, setStatsData] = useState({
@@ -28,6 +29,11 @@ const AdminDashboard = () => {
         totalFleet: '0',
         totalCustomers: '0'
     });
+    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [handoverData, setHandoverData] = useState(null);
+    const [showHandoverModal, setShowHandoverModal] = useState(false);
+    const [otpInput, setOtpInput] = useState('');
+    const [verifying, setVerifying] = useState(false);
 
     useEffect(() => {
         fetchDashboardData();
@@ -54,6 +60,11 @@ const AdminDashboard = () => {
                 const paymentsRes = await api.get('/payments');
                 setPayments(paymentsRes.data);
             }
+
+            if (activeSection === 'history') {
+                const historyRes = await api.get('/handover/history/admin');
+                setRideHistory(historyRes.data);
+            }
         } catch (err) {
             console.error('Error fetching dashboard data:', err);
         } finally {
@@ -68,6 +79,39 @@ const AdminDashboard = () => {
         } catch (err) {
             console.error('Error updating booking status:', err);
             alert('Failed to update booking status');
+        }
+    };
+
+    const handleManageHandover = async (booking) => {
+        setSelectedBooking(booking);
+        setShowHandoverModal(true);
+        fetchHandoverStatus(booking._id);
+    };
+
+    const fetchHandoverStatus = async (bookingId) => {
+        try {
+            const res = await api.get(`/handover/status/${bookingId}`);
+            setHandoverData(res.data);
+        } catch (err) {
+            console.error('Error fetching handover status:', err);
+        }
+    };
+
+    const verifyOTP = async (type) => {
+        setVerifying(true);
+        try {
+            const endpoint = type === 'pickup'
+                ? `/handover/verify-pickup-otp/${selectedBooking._id}`
+                : `/handover/verify-dropoff-otp/${selectedBooking._id}`;
+            await api.post(endpoint, { otp: otpInput });
+            setOtpInput('');
+            fetchHandoverStatus(selectedBooking._id);
+            alert(`${type === 'pickup' ? 'Pickup' : 'Dropoff'} verified!`);
+            fetchDashboardData(); // Refresh data as status might change
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error verifying OTP');
+        } finally {
+            setVerifying(false);
         }
     };
 
@@ -118,6 +162,12 @@ const AdminDashboard = () => {
                         onClick={() => setActiveSection('payments')}
                     >
                         <CreditCard size={20} /> Payments
+                    </div>
+                    <div
+                        className={`${styles.navItem} ${activeSection === 'history' ? styles.navActive : ''}`}
+                        onClick={() => setActiveSection('history')}
+                    >
+                        <Clock size={20} /> Ride History
                     </div>
                     <div className={styles.navItem}>
                         <Settings size={20} /> Settings
@@ -171,6 +221,7 @@ const AdminDashboard = () => {
                                         <th>Date</th>
                                         <th>Duration</th>
                                         <th>Amount</th>
+                                        <th>Location</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -196,6 +247,10 @@ const AdminDashboard = () => {
                                                 <td>{new Date(req.startDate).toLocaleDateString()}</td>
                                                 <td>{req.duration} days</td>
                                                 <td>${req.totalAmount}</td>
+                                                <td style={{ fontSize: '0.75rem' }}>
+                                                    <div title={req.pickupLocation?.address} style={{ color: '#6b7280' }}><strong>P:</strong> {req.pickupLocation?.address?.substring(0, 12) || 'N/A'}</div>
+                                                    <div title={req.dropoffLocation?.address} style={{ color: '#6b7280' }}><strong>D:</strong> {req.dropoffLocation?.address?.substring(0, 12) || 'N/A'}</div>
+                                                </td>
                                                 <td>
                                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                         <span className={`${styles.statusBadge} ${styles[req.status]}`}>
@@ -226,6 +281,14 @@ const AdminDashboard = () => {
                                                                 <X size={16} />
                                                             </button>
                                                         </>
+                                                    ) : req.paid ? (
+                                                        <button
+                                                            className={`${styles.actionBtn} ${styles.handover}`}
+                                                            onClick={() => handleManageHandover(req)}
+                                                            title="Manage Handover"
+                                                        >
+                                                            <Key size={16} />
+                                                        </button>
                                                     ) : (
                                                         <button className={styles.actionBtn} disabled style={{ opacity: 0.5 }}>
                                                             No actions
@@ -254,6 +317,8 @@ const AdminDashboard = () => {
                                     <th>Customer</th>
                                     <th>Vehicle</th>
                                     <th>Dates</th>
+                                    <th>Pickup Location</th>
+                                    <th>Drop-off Location</th>
                                     <th>Amount</th>
                                     <th>Status</th>
                                 </tr>
@@ -264,6 +329,8 @@ const AdminDashboard = () => {
                                         <td>{req.userName}</td>
                                         <td>{req.carName}</td>
                                         <td>{new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}</td>
+                                        <td>{req.pickupLocation?.address || 'N/A'}</td>
+                                        <td>{req.dropoffLocation?.address || 'N/A'}</td>
                                         <td>${req.totalAmount}</td>
                                         <td>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -374,8 +441,135 @@ const AdminDashboard = () => {
                         </table>
                     </div>
                 )}
+
+                {activeSection === 'history' && (
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <h3>Ride History</h3>
+                        </div>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Ref ID</th>
+                                    <th>Customer</th>
+                                    <th>Vehicle</th>
+                                    <th>Duration</th>
+                                    <th>Amount</th>
+                                    <th>Pickup</th>
+                                    <th>Dropoff</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {loading ? (
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>Loading history...</td></tr>
+                                ) : rideHistory.length === 0 ? (
+                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>No ride history yet.</td></tr>
+                                ) : (
+                                    rideHistory.map(item => (
+                                        <tr key={item._id}>
+                                            <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{item._id.slice(-6).toUpperCase()}</td>
+                                            <td>{item.userName}</td>
+                                            <td>{item.carName}</td>
+                                            <td>{item.duration} days</td>
+                                            <td>${item.totalAmount}</td>
+                                            <td>
+                                                <div style={{ fontSize: '0.9rem' }}>{item.pickupTime ? new Date(item.pickupTime).toLocaleString() : 'N/A'}</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Loc: {item.pickupLocation?.address || 'N/A'}</div>
+                                            </td>
+                                            <td>
+                                                <div style={{ fontSize: '0.9rem' }}>{item.dropoffTime ? new Date(item.dropoffTime).toLocaleString() : 'N/A'}</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Loc: {item.dropoffLocation?.address || 'N/A'}</div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </main>
 
+            {/* Handover Modal */}
+            {showHandoverModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowHandoverModal(false)}>
+                    <motion.div
+                        className={styles.modalContent}
+                        onClick={e => e.stopPropagation()}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <div className={styles.modalHeader}>
+                            <h3>Handover Verification - {selectedBooking?.carName}</h3>
+                            <button className={styles.closeBtn} onClick={() => setShowHandoverModal(false)}><X size={20} /></button>
+                        </div>
+
+                        <div className={styles.handoverInfo}>
+                            <p><strong>Customer:</strong> {selectedBooking?.userName}</p>
+                            <p><strong>Status:</strong> <span className={styles.statusBadge}>{handoverData?.status || 'None'}</span></p>
+                        </div>
+
+                        <div className={styles.handoverSections}>
+                            {/* Pickup Verification */}
+                            <div className={styles.handoverBox}>
+                                <h4>Pickup Verification</h4>
+                                {handoverData?.pickupVerified ? (
+                                    <div className={styles.verifiedInfo}>
+                                        <CheckCircle size={18} color="#22c55e" />
+                                        <span>Verified: {new Date(handoverData.pickupTime).toLocaleString()}</span>
+                                    </div>
+                                ) : (
+                                    <div className={styles.verifyAction}>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Pickup OTP"
+                                            value={otpInput}
+                                            onChange={(e) => setOtpInput(e.target.value)}
+                                            className={styles.otpInput}
+                                        />
+                                        <button
+                                            className={styles.verifyBtn}
+                                            onClick={() => verifyOTP('pickup')}
+                                            disabled={verifying || !otpInput}
+                                        >
+                                            Verify Pickup
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Dropoff Verification */}
+                            <div className={styles.handoverBox}>
+                                <h4>Dropoff Verification</h4>
+                                {!handoverData?.pickupVerified ? (
+                                    <p className={styles.mutedText}>Waiting for pickup verification...</p>
+                                ) : handoverData?.dropoffVerified ? (
+                                    <div className={styles.verifiedInfo}>
+                                        <CheckCircle size={18} color="#22c55e" />
+                                        <span>Verified: {new Date(handoverData.dropoffTime).toLocaleString()}</span>
+                                    </div>
+                                ) : (
+                                    <div className={styles.verifyAction}>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Dropoff OTP"
+                                            value={otpInput}
+                                            onChange={(e) => setOtpInput(e.target.value)}
+                                            className={styles.otpInput}
+                                        />
+                                        <button
+                                            className={styles.verifyBtn}
+                                            onClick={() => verifyOTP('dropoff')}
+                                            disabled={verifying || !otpInput}
+                                        >
+                                            Verify Dropoff
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };

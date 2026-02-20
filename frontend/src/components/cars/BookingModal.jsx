@@ -3,8 +3,76 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Clock, CreditCard, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import api from '../../services/api';
 import styles from './BookingModal.module.css';
+
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+const MapEvents = ({ setPosition, position }) => {
+    useMapEvents({
+        async click(e) {
+            const { lat, lng } = e.latlng;
+            setPosition({ ...position, lat, lng, address: 'Fetching address...' });
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+                const data = await response.json();
+                if (data && data.display_name) {
+                    setPosition({ ...position, lat, lng, address: data.display_name });
+                } else {
+                    setPosition({ ...position, lat, lng, address: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` });
+                }
+            } catch (error) {
+                console.error("Geocoding error:", error);
+                setPosition({ ...position, lat, lng, address: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` });
+            }
+        },
+    });
+    return null;
+};
+
+const RecenterMap = ({ position }) => {
+    const map = useMap();
+    useEffect(() => {
+        map.setView([position.lat, position.lng]);
+    }, [position.lat, position.lng]);
+    return null;
+};
+
+const LocationPicker = ({ position, setPosition, label }) => {
+
+    return (
+        <div className={styles.mapWrapper}>
+            <p className={styles.mapLabel}>{label}</p>
+            <MapContainer center={[position.lat, position.lng]} zoom={15} style={{ height: '180px', width: '100%', borderRadius: '12px' }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <Marker position={[position.lat, position.lng]} />
+                <MapEvents setPosition={setPosition} position={position} />
+                <RecenterMap position={position} />
+            </MapContainer>
+            <div className={styles.coords}>
+                <span>Lat: {position.lat.toFixed(4)}</span>
+                <span>Lng: {position.lng.toFixed(4)}</span>
+            </div>
+            <input
+                type="text"
+                placeholder="Enter area/address name"
+                value={position.address}
+                onChange={(e) => setPosition({ ...position, address: e.target.value })}
+                className={styles.addressInput}
+                required
+            />
+        </div>
+    );
+};
 
 const BookingModal = ({ car, onClose }) => {
     const { user } = useAuth();
@@ -17,6 +85,10 @@ const BookingModal = ({ car, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+
+    // Default to Ahmedabad, Gujarat, India
+    const [pickupLocation, setPickupLocation] = useState({ address: '', lat: 23.0225, lng: 72.5714 });
+    const [dropoffLocation, setDropoffLocation] = useState({ address: '', lat: 23.0338, lng: 72.5850 });
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -59,7 +131,9 @@ const BookingModal = ({ car, onClose }) => {
                 startDate,
                 endDate,
                 duration: days,
-                totalAmount: totalPrice
+                totalAmount: totalPrice,
+                pickupLocation,
+                dropoffLocation
             };
 
             await api.post('/bookings', bookingData);
@@ -138,31 +212,46 @@ const BookingModal = ({ car, onClose }) => {
                                 </div>
                             )}
 
-                            <div className={styles.formGroup}>
-                                <label>
-                                    <Calendar size={18} />
-                                    Pick-up Date
-                                </label>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    min={new Date().toISOString().split('T')[0]}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    required
-                                />
+                            <div className={styles.datesGrid}>
+                                <div className={styles.formGroup}>
+                                    <label>
+                                        <Calendar size={16} />
+                                        Pick-up
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label>
+                                        <Calendar size={16} />
+                                        Return
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        min={startDate || new Date().toISOString().split('T')[0]}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        required
+                                    />
+                                </div>
                             </div>
 
-                            <div className={styles.formGroup}>
-                                <label>
-                                    <Calendar size={18} />
-                                    Return Date
-                                </label>
-                                <input
-                                    type="date"
-                                    value={endDate}
-                                    min={startDate || new Date().toISOString().split('T')[0]}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    required
+                            <div className={styles.locationSection}>
+                                <LocationPicker
+                                    label="Pick-up Location"
+                                    position={pickupLocation}
+                                    setPosition={setPickupLocation}
+                                />
+                                <LocationPicker
+                                    label="Drop-off Location"
+                                    position={dropoffLocation}
+                                    setPosition={setDropoffLocation}
                                 />
                             </div>
 
@@ -171,20 +260,21 @@ const BookingModal = ({ car, onClose }) => {
                                     <span>Duration</span>
                                     <span>{days} days</span>
                                 </div>
-                                <div className={[styles.summaryRow, styles.total].join(' ')}>
+                                <div className={styles.summaryRow}>
                                     <span>Total Price</span>
-                                    <span>${totalPrice}</span>
+                                    <span className={styles.total}>${totalPrice}</span>
+                                </div>
+                                <div>
+                                    <button
+                                        type="submit"
+                                        className={styles.submitBtn}
+                                        disabled={loading}
+                                    >
+                                        {loading ? '...' : 'Request'}
+                                        {!loading && <ChevronRight size={18} />}
+                                    </button>
                                 </div>
                             </div>
-
-                            <button
-                                type="submit"
-                                className={styles.submitBtn}
-                                disabled={loading}
-                            >
-                                {loading ? 'Processing...' : 'Request Booking'}
-                                {!loading && <ChevronRight size={20} />}
-                            </button>
                         </form>
                     </div>
                 )}

@@ -29,9 +29,8 @@ router.post('/', async (req, res) => {
             status: 'completed'
         });
 
-        // Update booking status to completed and set paid: true
+        // Update booking to paid: true
         await Booking.findByIdAndUpdate(bookingId, {
-            status: 'completed',
             paid: true
         });
 

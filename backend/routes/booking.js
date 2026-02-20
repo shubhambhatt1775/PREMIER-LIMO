@@ -36,7 +36,11 @@ router.get('/:id', async (req, res) => {
 
 // Create a new booking
 router.post('/', async (req, res) => {
-    const { carId, userId, userName, userEmail, carName, startDate, endDate, duration, totalAmount } = req.body;
+    const {
+        carId, userId, userName, userEmail, carName,
+        startDate, endDate, duration, totalAmount,
+        pickupLocation, dropoffLocation
+    } = req.body;
 
     try {
         const booking = new Booking({
@@ -49,6 +53,8 @@ router.post('/', async (req, res) => {
             endDate,
             duration,
             totalAmount,
+            pickupLocation,
+            dropoffLocation,
             status: 'pending'
         });
 

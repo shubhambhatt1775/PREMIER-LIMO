@@ -25,6 +25,8 @@ const bookingRoutes = require('./routes/booking');
 const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payment');
 const licenseRoutes = require('./routes/license');
+const handoverRoutes = require('./routes/handover');
+const reviewRoutes = require('./routes/review');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/cars', carRoutes);
@@ -33,6 +35,8 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/license', licenseRoutes);
+app.use('/api/handover', handoverRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 
 

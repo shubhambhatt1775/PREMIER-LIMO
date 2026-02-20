@@ -510,3 +510,133 @@
         grid-template-columns: 1fr;
     }
 }
+.handover {
+    color: #3b82f6 !important;
+    border-color: #dbeafe !important;
+}
+
+.handover:hover {
+    background: #eff6ff !important;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+.modalContent {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    color: #111827;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modalHeader h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.handoverInfo {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.handoverInfo p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.handoverSections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.handoverBox {
+    background: white;
+    border: 1px solid #e5e7eb;
+    padding: 1.25rem;
+    border-radius: 12px;
+}
+
+.handoverBox h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.verifyAction {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.otpInput {
+    flex: 1;
+    padding: 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #000;
+}
+
+.verifyBtn {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.verifyBtn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.verifiedInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #16a34a;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.mutedText {
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin: 0;
+}

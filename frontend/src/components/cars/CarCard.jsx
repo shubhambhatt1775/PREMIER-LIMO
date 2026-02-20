@@ -13,6 +13,13 @@ const CarCard = ({ car, onRent }) => {
             <div className={styles.info}>
                 <h3>{car.name}</h3>
                 <p>${car.pricePerDay} / day</p>
+                {car.totalReviews > 0 && (
+                    <div className={styles.rating}>
+                        <span className={styles.star}>★</span>
+                        <span className={styles.ratingValue}>{car.averageRating?.toFixed(1)}</span>
+                        <span className={styles.totalReviews}>({car.totalReviews})</span>
+                    </div>
+                )}
             </div>
             <div className={styles.imageContainer}>
                 <img src={car.image || `https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800`} alt={car.name} />
