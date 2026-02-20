@@ -4,6 +4,8 @@ const Booking = require('../models/Booking');
 const Car = require('../models/Car');
 const User = require('../models/User');
 const DrivingLicense = require('../models/DrivingLicense');
+const VehicleLocation = require('../models/VehicleLocation');
+const Handover = require('../models/Handover');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // Get dashboard stats
@@ -22,12 +24,15 @@ router.get('/stats', async (req, res) => {
 
         const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
 
+        const onRoadCount = await Handover.countDocuments({ status: 'picked_up' });
+
         res.json({
             totalRevenue: `$${totalRevenue.toLocaleString()}`,
             activeBookings,
             pendingRequests: pendingBookings,
             totalFleet: totalCars,
-            totalCustomers
+            totalCustomers,
+            onRoad: onRoadCount
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -75,6 +80,19 @@ router.patch('/licenses/:id/status', async (req, res) => {
         }
 
         res.json(license);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Get all live vehicle locations
+router.get('/live-locations', async (req, res) => {
+    try {
+        const locations = await VehicleLocation.find()
+            .populate('booking', 'carName userName')
+            .populate('car', 'name image')
+            .populate('user', 'name email');
+        res.json(locations);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

@@ -49,17 +49,9 @@ const ChatWidget = () => {
 
             fetchMessages();
 
-            if (!socket.connected) {
-                socket.connect();
-            }
-
             const handleConnect = () => {
-                console.log('Socket connected');
+                console.log('ChatWidget: Socket connected');
                 socket.emit('join', user._id);
-            };
-
-            const handleConnectError = (error) => {
-                console.error('Socket connection error:', error);
             };
 
             const handleReceiveMessage = (data) => {
@@ -69,17 +61,14 @@ const ChatWidget = () => {
             };
 
             socket.on('connect', handleConnect);
-            socket.on('connect_error', handleConnectError);
             socket.on('receiveMessage', handleReceiveMessage);
 
-            // If already connected, manually call join
             if (socket.connected) {
-                socket.emit('join', user._id);
+                handleConnect();
             }
 
             return () => {
                 socket.off('connect', handleConnect);
-                socket.off('connect_error', handleConnectError);
                 socket.off('receiveMessage', handleReceiveMessage);
             };
         }

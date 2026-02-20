@@ -28,6 +28,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 ### Customer Features
 - 🔐 **User Authentication** - Secure signup/login with JWT and **Social Auth (Google/Facebook)**
 - 🔔 **Push Notifications** - Real-time browser notifications for booking status and alerts
+- 📡 **Live GPS Tracking** - Real-time location sharing during active rentals
 
 - 🪪 **Driving License** - Verify user identity with driving license info
 - 🚙 **Car Browsing** - Browse luxury cars with filters and search
@@ -52,6 +53,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 💰 **Payment Tracking** - Monitor all transactions
 - 🔍 **Search & Filter** - Advanced filtering capabilities
 - 💬 **Customer Support Chat** - Manage multiple real-time conversations with users
+- 🗺️ **Live Fleet Tracking** - Monitor all "On-Road" vehicles on a real-time interactive map
 
 
 ### UI/UX Features
@@ -76,7 +78,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 | **i18next** | 25.8.10 | Internationalization |
 | **react-i18next** | 16.5.4 | React i18n bindings |
 | **Lucide React** | 0.564.0 | Icon library |
-| **Leaflet / React Leaflet** | 4.2.1 | Maps & Geolocation |
+| **Leaflet / React Leaflet** | 4.2.1 | Maps & Live GPS Tracking |
 | **React Easy Crop** | 5.5.6 | Image cropping |
 | **Socket.io Client** | 4.8.1 | Real-time communication |
 | **@react-oauth/google** | 0.13.4 | Google Social Auth |
@@ -124,16 +126,20 @@ Car Rental/
 │   │   ├── Car.js                 # Car schema
 │   │   ├── Booking.js             # Booking schema
 │   │   ├── Payment.js             # Payment schema
-│   │   └── DrivingLicense.js      # License schema
+│   │   ├── DrivingLicense.js      # License schema
+│   │   ├── Handover.js            # OTP schema
+│   │   └── VehicleLocation.js     # Live GPS schema
 │   ├── routes/
 │   │   ├── auth.js                # Auth routes
 │   │   ├── car.js                 # Car routes
 │   │   ├── booking.js             # Booking routes
 │   │   ├── payment.js             # Payment routes
-│   │   ├── admin.js               # Admin routes
-│   │   ├── imagekit.js            # ImageKit routes
-│   │   ├── license.js             # License routes
-│   │   └── chat.js                # Chat routes
+│   │   ├── admin.js               # Admin statistics & management
+│   │   ├── imagekit.js            # ImageKit integration
+│   │   ├── license.js             # License verification
+│   │   ├── handover.js            # OTP & Handover logic
+│   │   ├── chat.js                # Chat routes
+│   │   └── notification.js        # Push notification routes
 
 │   ├── .env                       # Environment variables
 │   ├── server.js                  # Entry point
@@ -158,7 +164,8 @@ Car Rental/
 │   │   │   │   └── CarSearch.jsx
 │   │   │   ├── home/              # Home page components
 │   │   │   ├── dashboard/         # Dashboard components
-│   │   │   └── chat/              # Chat components (ChatWidget)
+│   │   │   ├── chat/              # Chat components (ChatWidget)
+│   │   │   └── LocationTracker.jsx # Background GPS service
 
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx    # Global auth state
@@ -174,7 +181,9 @@ Car Rental/
 │   │   │   ├── admin/
 │   │   │   │   ├── AdminDashboard.jsx
 │   │   │   │   ├── FleetManagement.jsx
-│   │   │   │   └── AdminMessages.jsx
+│   │   │   │   ├── AdminMessages.jsx
+│   │   │   │   ├── LiveTracking.jsx
+│   │   │   │   └── LiveTracking.module.css
 
 │   │   │   └── user/
 │   │   │       ├── UserDashboard.jsx
@@ -213,7 +222,7 @@ Car Rental/
 
 ### Collections Overview
 
-The application uses MongoDB with 8 main collections:
+The application uses MongoDB with 10 main collections:
 
 #### 1. **Users Collection**
 ```javascript
@@ -347,6 +356,37 @@ The application uses MongoDB with 8 main collections:
   text: String (required),
   isRead: Boolean (default: false),
   timestamp: Date (default: Date.now)
+}
+```
+
+#### 9. **Handover Collection**
+```javascript
+{
+  _id: ObjectId,
+  booking: ObjectId (ref: 'Booking', required),
+  user: ObjectId (ref: 'User', required),
+  car: ObjectId (ref: 'Car', required),
+  pickupOTP: String,
+  pickupVerified: Boolean,
+  pickupTime: Date,
+  dropoffOTP: String,
+  dropoffVerified: Boolean,
+  dropoffTime: Date,
+  status: String (enum: ['pending_pickup', 'picked_up', 'pending_dropoff', 'dropped_off']),
+  createdAt: Date
+}
+```
+
+#### 10. **VehicleLocation Collection**
+```javascript
+{
+  _id: ObjectId,
+  booking: ObjectId (ref: 'Booking', required, unique),
+  car: ObjectId (ref: 'Car', required),
+  user: ObjectId (ref: 'User', required),
+  latitude: Number,
+  longitude: Number,
+  lastUpdated: Date (default: Date.now)
 }
 ```
 
@@ -593,6 +633,7 @@ Granular look at user identity verification.
 |--------|----------|-------------|---------------|
 | GET | `/stats` | Get dashboard statistics | Admin |
 | GET | `/customers` | Get all customers | Admin |
+| GET | `/live-locations`| Get all real-time vehicle positions | Admin |
 
 ### ImageKit Routes (`/api/imagekit`)
 | Method | Endpoint | Description | Auth Required |
@@ -608,6 +649,14 @@ Granular look at user identity verification.
 | GET | `/users/:adminId` | Get chat list for admin | Admin |
 | PUT | `/mark-read` | Mark messages as read | Yes |
 | GET | `/admin` | Get admin details | Yes |
+
+### Handover Routes (`/api/handover`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/status/:bookingId` | Get detailed handover status | Yes |
+| GET | `/active-trip/:userId`| Get current "picked_up" trip | Yes |
+| POST | `/verify-pickup-otp/:bookingId` | Verify pickup & start tracking | Admin |
+| POST | `/verify-dropoff-otp/:bookingId`| Verify return & stop tracking | Admin |
 
 ### Notification Routes (`/api/notifications`)
 | Method | Endpoint | Description | Auth Required |
@@ -717,6 +766,7 @@ VITE_API_URL=http://localhost:5000/api
 VITE_GOOGLE_CLIENT_ID=your_id
 VITE_FACEBOOK_APP_ID=your_id
 VITE_VAPID_PUBLIC_KEY=your_key
+VITE_SOCKET_URL=http://localhost:5000
 ```
 
 
@@ -772,8 +822,14 @@ export default defineConfig({
 
 2. **Dashboard Overview**
    - View key metrics (revenue, bookings, customers)
+   - **Track Vehicles on Road**: Real-time count of active rentals
    - Monitor pending requests
    - Track fleet status
+
+7. **Live Fleet Tracking**
+   - View all active "Picked Up" vehicles on a map
+   - Monitor driver locations in real-time
+   - Dynamic map auto-zooming to fit entire fleet
 
 3. **Manage Fleet**
    - Add new vehicles with images
@@ -978,4 +1034,3 @@ This project is licensed under the MIT License.
 **TO DO**
 
 - [ ] Live GPS tracking of the cars
-- [ ] devloper info

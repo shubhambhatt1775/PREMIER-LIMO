@@ -32,6 +32,7 @@ import CityService from './components/services/CityService';
 import RouteService from './components/services/RouteService';
 import heroVideo from './assets/A_drive_like_no_other_the_Porsche_911_GT3_2160p.mp4';
 import ChatWidget from './components/chat/ChatWidget';
+import LocationTracker from './components/LocationTracker';
 
 import './App.css';
 
@@ -59,6 +60,7 @@ const AppContent = () => {
 
 
       {!isAdminRoute && <Navbar />}
+      <LocationTracker />
       <main className="main-content">
 
         <Routes>

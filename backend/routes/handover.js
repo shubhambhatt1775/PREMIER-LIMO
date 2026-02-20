@@ -111,6 +111,10 @@ router.post('/verify-dropoff-otp/:bookingId', async (req, res) => {
             });
             await history.save();
 
+            // Clear live location tracking
+            const VehicleLocation = require('../models/VehicleLocation');
+            await VehicleLocation.deleteOne({ booking: booking._id });
+
             res.json({ message: 'Dropoff verified successfully and booking completed' });
         } else {
             res.status(400).json({ message: 'Invalid OTP' });
@@ -145,6 +149,17 @@ router.get('/history/admin', async (req, res) => {
     try {
         const history = await RideHistory.find().sort({ completedAt: -1 });
         res.json(history);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Get active trip for a user
+router.get('/active-trip/:userId', async (req, res) => {
+    try {
+        const handover = await Handover.findOne({ user: req.params.userId, status: 'picked_up' })
+            .populate('booking', 'carName');
+        res.json(handover);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

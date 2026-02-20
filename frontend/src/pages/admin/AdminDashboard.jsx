@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
     LayoutDashboard, Briefcase, Calendar, Settings,
-    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare
+    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare, Navigation
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import styles from './AdminDashboard.module.css';
 
 import FleetManagement from './FleetManagement';
 import AdminMessages from './AdminMessages';
+import LiveTracking from './LiveTracking';
 
 const AdminDashboard = () => {
     const { logout } = useAuth();
@@ -156,7 +157,8 @@ const AdminDashboard = () => {
         activeBookings: '0',
         pendingRequests: '0',
         totalFleet: '0',
-        totalCustomers: '0'
+        totalCustomers: '0',
+        onRoad: '0'
     };
 
     const requests = bookingsRes?.data || [];
@@ -171,6 +173,7 @@ const AdminDashboard = () => {
         { label: 'Active Bookings', value: statsData.activeBookings.toString(), icon: <Briefcase size={20} />, class: styles.iconBlue },
         { label: 'Pending Requests', value: statsData.pendingRequests.toString(), icon: <Clock size={20} />, class: styles.iconOrange },
         { label: 'Total Customers', value: statsData.totalCustomers.toString(), icon: <Users size={20} />, class: styles.iconPurple },
+        { label: 'Vehicles on Road', value: statsData.onRoad?.toString() || '0', icon: <Navigation size={20} />, class: styles.iconBlue },
     ];
 
     const filteredCustomers = customers.filter(c =>
@@ -239,6 +242,12 @@ const AdminDashboard = () => {
                         onClick={() => setActiveSection('messages')}
                     >
                         <MessageSquare size={20} /> Messages
+                    </div>
+                    <div
+                        className={`${styles.navItem} ${activeSection === 'tracking' ? styles.navActive : ''}`}
+                        onClick={() => setActiveSection('tracking')}
+                    >
+                        <Navigation size={20} /> Live Tracking
                     </div>
                 </nav>
                 <div className={styles.sidebarFooter}>
@@ -310,6 +319,13 @@ const AdminDashboard = () => {
                 >
                     <MessageSquare size={20} />
                     <span>Chat</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'tracking' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('tracking')}
+                >
+                    <Navigation size={20} />
+                    <span>Track</span>
                 </div>
                 {/* Scrollable container could hold more, but let's stick to core or add a More button */}
                 <div
@@ -801,6 +817,9 @@ const AdminDashboard = () => {
                 )}
 
                 {activeSection === 'messages' && <AdminMessages />}
+                <div className={activeSection === 'tracking' ? styles.trackingSectionWrapper : ''}>
+                    {activeSection === 'tracking' && <LiveTracking />}
+                </div>
             </main>
 
             {/* Handover Modal */}

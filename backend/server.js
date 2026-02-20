@@ -57,6 +57,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Socket.io Logic
+const VehicleLocation = require('./models/VehicleLocation');
+
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
@@ -65,12 +67,52 @@ io.on('connection', (socket) => {
         console.log(`User ${userId} joined their room`);
     });
 
+    // Join admin room
+    socket.on('joinAdmin', () => {
+        socket.join('admins');
+        console.log('Admin joined admins room');
+    });
+
     socket.on('sendMessage', (data) => {
         const { sender, receiver, text } = data;
         // Broadcast to receiver's room
         io.to(receiver).emit('receiveMessage', data);
         // Also send back to sender's room for synchronization across multiple tabs if needed
         io.to(sender).emit('receiveMessage', data);
+    });
+
+    // Location Tracking
+    socket.on('updateLocation', async (data) => {
+        const { bookingId, carId, userId, latitude, longitude, carName, userName } = data;
+
+        try {
+            // Update or Create the live location in DB
+            await VehicleLocation.findOneAndUpdate(
+                { booking: bookingId },
+                {
+                    car: carId,
+                    user: userId,
+                    latitude,
+                    longitude,
+                    lastUpdated: new Date()
+                },
+                { upsert: true, new: true }
+            );
+
+            // Broadcast to all admins
+            io.to('admins').emit('locationUpdate', {
+                bookingId,
+                carId,
+                userId,
+                latitude,
+                longitude,
+                carName,
+                userName,
+                timestamp: new Date()
+            });
+        } catch (err) {
+            console.error('Error updating location:', err);
+        }
     });
 
     socket.on('disconnect', () => {
