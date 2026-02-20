@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
 
         if (overlaps.length > 0) {
             return res.status(400).json({
-                message: 'Vehicle is not available for the selected dates. Please choose different dates.'
+                message: 'Vehicle is already booked for these dates by another approved request.'
             });
         }
 
@@ -127,7 +127,7 @@ router.patch('/:id/status', async (req, res) => {
 
             if (overlaps.length > 0) {
                 return res.status(400).json({
-                    message: 'Cannot approve: Vehicle is already booked for these dates by another approved request.'
+                    message: 'Cannot approve: This vehicle has a scheduling conflict with another approved booking.'
                 });
             }
 

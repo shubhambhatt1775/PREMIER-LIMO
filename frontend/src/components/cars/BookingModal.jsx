@@ -111,8 +111,23 @@ const BookingModal = ({ car, onClose }) => {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
             setDays(diffDays);
             setTotalPrice(diffDays * car.pricePerDay);
+
+            // Check for overlap immediately
+            const hasOverlap = bookedDates.some(range => {
+                const bookedStart = new Date(range.start);
+                const bookedEnd = new Date(range.end);
+                return start <= bookedEnd && end >= bookedStart;
+            });
+
+            if (hasOverlap) {
+                setError('Vehicle is already booked for these dates by another approved request.');
+            } else if (start >= end) {
+                setError('End date must be after start date.');
+            } else {
+                setError(null);
+            }
         }
-    }, [startDate, endDate, car.pricePerDay]);
+    }, [startDate, endDate, car.pricePerDay, bookedDates]);
 
     const handleBooking = async (e) => {
         e.preventDefault();
@@ -133,7 +148,6 @@ const BookingModal = ({ car, onClose }) => {
             return;
         }
 
-        // Final check for overlap before submitting
         const hasOverlap = bookedDates.some(range => {
             const start = new Date(startDate);
             const end = new Date(endDate);
@@ -143,7 +157,7 @@ const BookingModal = ({ car, onClose }) => {
         });
 
         if (hasOverlap) {
-            setError('This vehicle is already booked for the selected dates. Please check the "Reserved Dates" section.');
+            setError('Vehicle is already booked for these dates by another approved request.');
             return;
         }
 
@@ -286,7 +300,7 @@ const BookingModal = ({ car, onClose }) => {
                                 <div className={styles.bookedDatesSection}>
                                     <label className={styles.bookedLabel}>
                                         <AlertCircle size={14} />
-                                        Private Bookings:
+                                        Currently Reserved Dates:
                                     </label>
                                     <div className={styles.bookedDatesList}>
                                         {bookedDates.map((range, idx) => (
