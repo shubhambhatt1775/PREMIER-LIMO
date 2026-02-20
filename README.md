@@ -880,40 +880,37 @@ export default defineConfig({
 
 ## 🌐 Deployment (Vercel)
 
-Follow these steps to host your Premier Limo application on **Vercel**.
+The application is fully optimized for **Vercel** deployment. You can view the live site here:
+**Live Demo:** [https://premier-limo.vercel.app](https://premier-limo.vercel.app)
 
-### 1. Backend Deployment
-Since this is a MERN stack, we recommend deploying the `backend` and `frontend` as separate sites or using a monorepo setup.
+### 1. Backend Deployment (Serverless API)
+The backend is hosted as a dedicated Vercel project using `@vercel/node`.
 
-#### **Option A: Separate Deployment (Recommended)**
-1. Create a new project on Vercel and link your repository.
-2. Set the **Root Directory** to `backend`.
-3. Add a `vercel.json` in the `/backend` folder:
-   ```json
-   {
-     "version": 2,
-     "builds": [{ "src": "server.js", "use": "@vercel/node" }],
-     "routes": [{ "src": "/(.*)", "dest": "server.js" }]
-   }
-   ```
-4. Configure **Environment Variables** (MONGO_URI, JWT_SECRET, IMAGEKIT_*).
-5. Deploy. Your API will be at `https://your-backend.vercel.app`.
+1. **Root Directory:** Set to `backend` in Vercel settings.
+2. **Framework Preset:** None (detected as Node.js).
+3. **Vercel Config:** Managed via `backend/vercel.json`.
+4. **Health Check:** Monitor status at `/api/health`.
 
-### 2. Frontend Deployment
-1. Create another project on Vercel and link the same repository.
-2. Set the **Root Directory** to `frontend`.
-3. Use **Framework Preset**: `Vite`.
-4. Update `frontend/src/services/api.js` to use your deployed backend URL.
-5. Deploy. Your site will be live!
+### 2. Frontend Deployment (Vite SPA)
+The frontend is hosted as a separate Vercel project.
 
-### 3. Environment Variables for Vercel
-In the Vercel Dashboard, go to **Settings > Environment Variables** and add:
-- `MONGO_URI`
-- `JWT_SECRET`
-- `NODE_ENV=production`
-- `IMAGEKIT_PUBLIC_KEY`
-- `IMAGEKIT_PRIVATE_KEY`
-- `IMAGEKIT_URL_ENDPOINT`
+1. **Root Directory:** Set to `frontend` in Vercel settings.
+2. **Framework Preset:** `Vite`.
+3. **Build Command:** `npm run build`.
+4. **Output Directory:** `dist`.
+5. **SPA Routing:** Managed via `frontend/vercel.json` (Rewrites all routes to `index.html`).
+
+### 3. Required Environment Variables
+
+| Variable | Source | Purpose |
+|----------|--------|---------|
+| `MONGO_URI` | MongoDB Atlas | Cloud Database Connection |
+| `JWT_SECRET` | Custom | Authentication security |
+| `NODE_ENV` | production | Optimization flag |
+| `FRONTEND_URL` | Vercel | Used for CORS and Stripe redirects |
+| `VITE_API_URL` | Vercel | Connection point for the frontend |
+| `IMAGEKIT_*` | ImageKit.io | Media storage and optimization |
+| `STRIPE_*` | Stripe | Real-time payment processing |
 
 ---
 
