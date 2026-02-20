@@ -345,3 +345,37 @@
     margin-bottom: 15px;
     font-size: 0.85rem;
 }
+
+.bookedDatesSection {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(255, 136, 0, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 136, 0, 0.1);
+}
+
+.bookedLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffcc00;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.bookedDatesList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.bookedDateTag {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}

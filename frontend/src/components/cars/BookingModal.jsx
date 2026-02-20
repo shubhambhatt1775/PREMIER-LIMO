@@ -85,10 +85,23 @@ const BookingModal = ({ car, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [bookedDates, setBookedDates] = useState([]);
 
     // Default to Ahmedabad, Gujarat, India
     const [pickupLocation, setPickupLocation] = useState({ address: '', lat: 23.0225, lng: 72.5714 });
     const [dropoffLocation, setDropoffLocation] = useState({ address: '', lat: 23.0338, lng: 72.5850 });
+
+    useEffect(() => {
+        const fetchBookedDates = async () => {
+            try {
+                const response = await api.get(`/bookings/car/${car._id}/booked-dates`);
+                setBookedDates(response.data);
+            } catch (err) {
+                console.error('Error fetching booked dates:', err);
+            }
+        };
+        fetchBookedDates();
+    }, [car._id]);
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -117,6 +130,20 @@ const BookingModal = ({ car, onClose }) => {
 
         if (new Date(startDate) >= new Date(endDate)) {
             setError('End date must be after start date.');
+            return;
+        }
+
+        // Final check for overlap before submitting
+        const hasOverlap = bookedDates.some(range => {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const bookedStart = new Date(range.start);
+            const bookedEnd = new Date(range.end);
+            return start <= bookedEnd && end >= bookedStart;
+        });
+
+        if (hasOverlap) {
+            setError('This vehicle is already booked for the selected dates. Please check the "Reserved Dates" section.');
             return;
         }
 
@@ -254,6 +281,22 @@ const BookingModal = ({ car, onClose }) => {
                                     setPosition={setDropoffLocation}
                                 />
                             </div>
+
+                            {bookedDates.length > 0 && (
+                                <div className={styles.bookedDatesSection}>
+                                    <label className={styles.bookedLabel}>
+                                        <AlertCircle size={14} />
+                                        Private Bookings:
+                                    </label>
+                                    <div className={styles.bookedDatesList}>
+                                        {bookedDates.map((range, idx) => (
+                                            <span key={idx} className={styles.bookedDateTag}>
+                                                {new Date(range.start).toLocaleDateString()} - {new Date(range.end).toLocaleDateString()}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className={styles.summary}>
                                 <div className={styles.summaryRow}>

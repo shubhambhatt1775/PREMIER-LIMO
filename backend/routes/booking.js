@@ -3,6 +3,7 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Car = require('../models/Car');
 const Notification = require('../models/Notification');
+const Availability = require('../models/Availability');
 const { sendPushNotification, sendPushToAdmins } = require('../utils/pushNotification');
 
 // Get all bookings (for admin)
@@ -45,6 +46,20 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     try {
+        // Check for existing overlapping bookings
+        const overlaps = await Availability.find({
+            car: carId,
+            $or: [
+                { startDate: { $lte: new Date(endDate) }, endDate: { $gte: new Date(startDate) } }
+            ]
+        });
+
+        if (overlaps.length > 0) {
+            return res.status(400).json({
+                message: 'Vehicle is not available for the selected dates. Please choose different dates.'
+            });
+        }
+
         const booking = new Booking({
             car: carId,
             user: userId,
@@ -96,11 +111,41 @@ router.post('/', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
     const { status } = req.body;
     try {
-        const booking = await Booking.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            { new: true }
-        );
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+        // If approving, check availability again (to prevent race conditions)
+        if (status === 'approved') {
+            const overlaps = await Availability.find({
+                car: booking.car,
+                $or: [
+                    { startDate: { $lte: booking.endDate }, endDate: { $gte: booking.startDate } }
+                ]
+            });
+
+            if (overlaps.length > 0) {
+                return res.status(400).json({
+                    message: 'Cannot approve: Vehicle is already booked for these dates by another approved request.'
+                });
+            }
+
+            // Create official availability record
+            await Availability.create({
+                car: booking.car,
+                booking: booking._id,
+                startDate: booking.startDate,
+                endDate: booking.endDate,
+                type: 'booking'
+            });
+        }
+
+        // If denying/cancelling, remove availability record if it exists
+        if (['denied', 'cancelled'].includes(status)) {
+            await Availability.findOneAndDelete({ booking: booking._id });
+        }
+
+        booking.status = status;
+        await booking.save();
 
         if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
@@ -131,6 +176,19 @@ router.patch('/:id/status', async (req, res) => {
         res.json(booking);
     } catch (err) {
         res.status(400).json({ message: err.message });
+    }
+});
+
+// Get booked dates for a specific car
+router.get('/car/:carId/booked-dates', async (req, res) => {
+    try {
+        const bookings = await Availability.find({ car: req.params.carId });
+        res.json(bookings.map(b => ({
+            start: b.startDate,
+            end: b.endDate
+        })));
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 

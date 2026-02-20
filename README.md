@@ -42,6 +42,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 🌍 **Multi-language** - Support for English, Spanish, French, German
 - 📱 **Responsive Design** - Optimized for all devices
 - 💬 **Real-time Chat** - Chat with support admin in real-time
+- 🧠 **Smart Availability** - Date-based checks to prevent overlapping rentals
 
 
 ### Admin Features
@@ -132,7 +133,7 @@ Car Rental/
 │   ├── routes/
 │   │   ├── auth.js                # Auth routes
 │   │   ├── car.js                 # Car routes
-│   │   ├── booking.js             # Booking routes
+│   │   ├── booking.js             # Booking & Availability logic
 │   │   ├── payment.js             # Payment routes
 │   │   ├── admin.js               # Admin statistics & management
 │   │   ├── imagekit.js            # ImageKit integration
@@ -387,6 +388,19 @@ The application uses MongoDB with 10 main collections:
   latitude: Number,
   longitude: Number,
   lastUpdated: Date (default: Date.now)
+}
+```
+
+#### 11. **Availability Collection**
+```javascript
+{
+  _id: ObjectId,
+  car: ObjectId (ref: 'Car', required),
+  booking: ObjectId (ref: 'Booking'),
+  startDate: Date (required),
+  endDate: Date (required),
+  type: String (enum: ['booking', 'maintenance', 'blocked']),
+  createdAt: Date
 }
 ```
 
