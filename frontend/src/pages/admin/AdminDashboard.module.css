@@ -13,6 +13,7 @@
     flex-direction: column;
     position: fixed;
     height: 100vh;
+    z-index: 1000;
 }
 
 .sidebarLogo {
@@ -70,6 +71,31 @@
     background: rgba(239, 68, 68, 0.1);
 }
 
+.sidebarFooterActions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sidebarActionBtn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    color: #9ca3af;
+    font-weight: 600;
+    transition: 0.2s;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.sidebarActionBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
 .mainContent {
 
     flex: 1;
@@ -105,6 +131,12 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+@media (max-width: 480px) {
+    .statCard {
+        padding: 1rem;
+    }
 }
 
 .statInfo span {
@@ -492,24 +524,160 @@
     }
 }
 
+.bottomNav {
+    display: none;
+}
+
+.mobileTopBar {
+    display: none;
+}
+
 @media (max-width: 768px) {
+    .adminWrapper {
+        flex-direction: column;
+    }
+
     .sidebar {
-        display: none;
+        display: none !important;
+    }
+
+    .mobileTopBar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        background: #111827;
+        color: #fbbf24;
+        font-weight: 800;
+        font-size: 1.1rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mobileCloseBtn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .mobileCloseBtn:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.2);
     }
 
     .mainContent {
         margin-left: 0;
-        padding: 1.5rem;
+        padding: 1.5rem 1.5rem 6.5rem 1.5rem;
+        /* Add bottom padding for nav */
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    .bottomNav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background: #111827;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 1000;
+        padding: 0 0.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        /* Hide scrollbar Firefox */
+    }
+
+    .bottomNav::-webkit-scrollbar {
+        display: none;
+        /* Hide scrollbar Chrome/Safari */
+    }
+
+    .bottomNavItem {
+        flex: 1;
+        min-width: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        color: #9ca3af;
+        font-size: 0.65rem;
+        font-weight: 500;
+        transition: 0.2s;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .bottomActive {
+        color: #fbbf24;
+    }
+
+    .bottomNavItem svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .topBar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 
     .statsGrid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .section {
+        border-radius: 8px;
+    }
+
+    .tableContainer {
+        overflow-x: auto;
+    }
+
+    .table {
+        min-width: 700px;
+    }
+
+    .filterBar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
     }
 
     .formGrid {
         grid-template-columns: 1fr;
     }
+
+    .sectionHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .modal {
+        width: 95%;
+        padding: 1.5rem;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
 }
+
 
 .handover {
     color: #3b82f6 !important;
@@ -648,6 +816,12 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     margin-top: 1rem;
+}
+
+@media (max-width: 480px) {
+    .licenseGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .licenseImgWrapper {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
     LayoutDashboard, Briefcase, Calendar, Settings,
-    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText
+    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -151,7 +151,15 @@ const AdminDashboard = () => {
 
     return (
         <div className={styles.adminWrapper}>
-            {/* Sidebar */}
+            {/* Mobile Top Bar */}
+            <div className={styles.mobileTopBar}>
+                <span>PREMIER LIMO</span>
+                <button className={styles.mobileCloseBtn} onClick={() => navigate('/')}>
+                    <X size={20} />
+                </button>
+            </div>
+
+            {/* Sidebar (Desktop) */}
             <aside className={styles.sidebar}>
                 <div className={styles.sidebarLogo}>PREMIER LIMO <span>ADMIN</span></div>
                 <nav className={styles.sidebarNav}>
@@ -197,17 +205,79 @@ const AdminDashboard = () => {
                     >
                         <FileText size={20} /> Licenses
                     </div>
-                    <div className={styles.navItem}>
-                        <Settings size={20} /> Settings
-                    </div>
                 </nav>
-
                 <div className={styles.sidebarFooter}>
-                    <button className={styles.logoutBtn} onClick={() => { logout(); navigate('/'); }}>
-                        <LogOut size={20} /> Sign Out
-                    </button>
+                    <div className={styles.sidebarFooterActions}>
+                        <button className={styles.sidebarActionBtn} onClick={() => navigate('/')}>
+                            <X size={20} /> Close Dashboard
+                        </button>
+                        <button className={styles.logoutBtn} onClick={() => { logout(); navigate('/'); }}>
+                            <LogOut size={20} /> Sign Out
+                        </button>
+                    </div>
                 </div>
             </aside>
+
+            {/* Bottom Navigation (Mobile) */}
+            <nav className={styles.bottomNav}>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'overview' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('overview')}
+                >
+                    <LayoutDashboard size={20} />
+                    <span>Home</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'fleet' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('fleet')}
+                >
+                    <Car size={20} />
+                    <span>Fleet</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'reservations' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('reservations')}
+                >
+                    <Calendar size={20} />
+                    <span>Booking</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'customers' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('customers')}
+                >
+                    <Users size={20} />
+                    <span>Users</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'payments' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('payments')}
+                >
+                    <CreditCard size={20} />
+                    <span>Pay</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'history' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('history')}
+                >
+                    <Clock size={20} />
+                    <span>History</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'licenses' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('licenses')}
+                >
+                    <FileText size={20} />
+                    <span>Verify</span>
+                </div>
+                {/* Scrollable container could hold more, but let's stick to core or add a More button */}
+                <div
+                    className={styles.bottomNavItem}
+                    onClick={() => { logout(); navigate('/'); }}
+                >
+                    <LogOut size={20} />
+                    <span>Exit</span>
+                </div>
+            </nav>
 
             {/* Main Content */}
             <main className={styles.mainContent}>
@@ -241,93 +311,95 @@ const AdminDashboard = () => {
                                 <h4>Recent Booking Requests</h4>
                                 <button className={styles.viewAllBtn} onClick={() => setActiveSection('reservations')}>View All <ChevronRight size={16} /></button>
                             </div>
-                            <table className={styles.table}>
-                                <thead>
-                                    <tr>
-                                        <th>Customer</th>
-                                        <th>Vehicle</th>
-                                        <th>Date</th>
-                                        <th>Duration</th>
-                                        <th>Amount</th>
-                                        <th>Location</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>Loading requests...</td></tr>
-                                    ) : requests.length === 0 ? (
-                                        <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>No recent requests found.</td></tr>
-                                    ) : (
-                                        requests.slice(0, 5).map((req) => (
-                                            <tr key={req._id}>
-                                                <td>
-                                                    <div className={styles.userCell}>
-                                                        <div className={styles.userAvatar}>{(req.userName || 'U').charAt(0)}</div>
-                                                        <div>
-                                                            <div style={{ fontWeight: 600 }}>{req.userName}</div>
-                                                            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{req.userEmail}</div>
+                            <div className={styles.tableContainer}>
+                                <table className={styles.table}>
+                                    <thead>
+                                        <tr>
+                                            <th>Customer</th>
+                                            <th>Vehicle</th>
+                                            <th>Date</th>
+                                            <th>Duration</th>
+                                            <th>Amount</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {loading ? (
+                                            <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>Loading requests...</td></tr>
+                                        ) : requests.length === 0 ? (
+                                            <tr><td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>No recent requests found.</td></tr>
+                                        ) : (
+                                            requests.slice(0, 5).map((req) => (
+                                                <tr key={req._id}>
+                                                    <td>
+                                                        <div className={styles.userCell}>
+                                                            <div className={styles.userAvatar}>{(req.userName || 'U').charAt(0)}</div>
+                                                            <div>
+                                                                <div style={{ fontWeight: 600 }}>{req.userName}</div>
+                                                                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{req.userEmail}</div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td>{req.carName}</td>
-                                                <td>{new Date(req.startDate).toLocaleDateString()}</td>
-                                                <td>{req.duration} days</td>
-                                                <td>${req.totalAmount}</td>
-                                                <td style={{ fontSize: '0.75rem' }}>
-                                                    <div title={req.pickupLocation?.address} style={{ color: '#6b7280' }}><strong>P:</strong> {req.pickupLocation?.address?.substring(0, 12) || 'N/A'}</div>
-                                                    <div title={req.dropoffLocation?.address} style={{ color: '#6b7280' }}><strong>D:</strong> {req.dropoffLocation?.address?.substring(0, 12) || 'N/A'}</div>
-                                                </td>
-                                                <td>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                        <span className={`${styles.statusBadge} ${styles[req.status]}`}>
-                                                            {req.status}
-                                                        </span>
-                                                        {req.paid && (
-                                                            <span className={`${styles.statusBadge} ${styles.approved}`} style={{ fontSize: '0.65rem' }}>
-                                                                PAID
+                                                    </td>
+                                                    <td>{req.carName}</td>
+                                                    <td>{new Date(req.startDate).toLocaleDateString()}</td>
+                                                    <td>{req.duration} days</td>
+                                                    <td>${req.totalAmount}</td>
+                                                    <td style={{ fontSize: '0.75rem' }}>
+                                                        <div title={req.pickupLocation?.address} style={{ color: '#6b7280' }}><strong>P:</strong> {req.pickupLocation?.address?.substring(0, 12) || 'N/A'}</div>
+                                                        <div title={req.dropoffLocation?.address} style={{ color: '#6b7280' }}><strong>D:</strong> {req.dropoffLocation?.address?.substring(0, 12) || 'N/A'}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                            <span className={`${styles.statusBadge} ${styles[req.status]}`}>
+                                                                {req.status}
                                                             </span>
+                                                            {req.paid && (
+                                                                <span className={`${styles.statusBadge} ${styles.approved}`} style={{ fontSize: '0.65rem' }}>
+                                                                    PAID
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className={styles.actions}>
+                                                        {req.status === 'pending' ? (
+                                                            <>
+                                                                <button
+                                                                    className={`${styles.actionBtn} ${styles.approve}`}
+                                                                    onClick={() => handleAction(req._id, 'approved')}
+                                                                    title="Approve"
+                                                                >
+                                                                    <Check size={16} />
+                                                                </button>
+                                                                <button
+                                                                    className={`${styles.actionBtn} ${styles.deny}`}
+                                                                    onClick={() => handleAction(req._id, 'denied')}
+                                                                    title="Deny"
+                                                                >
+                                                                    <X size={16} />
+                                                                </button>
+                                                            </>
+                                                        ) : req.paid ? (
+                                                            <button
+                                                                className={`${styles.actionBtn} ${styles.handover}`}
+                                                                onClick={() => handleManageHandover(req)}
+                                                                title="Manage Handover"
+                                                            >
+                                                                <Key size={16} />
+                                                            </button>
+                                                        ) : (
+                                                            <button className={styles.actionBtn} disabled style={{ opacity: 0.5 }}>
+                                                                No actions
+                                                            </button>
                                                         )}
-                                                    </div>
-                                                </td>
-                                                <td className={styles.actions}>
-                                                    {req.status === 'pending' ? (
-                                                        <>
-                                                            <button
-                                                                className={`${styles.actionBtn} ${styles.approve}`}
-                                                                onClick={() => handleAction(req._id, 'approved')}
-                                                                title="Approve"
-                                                            >
-                                                                <Check size={16} />
-                                                            </button>
-                                                            <button
-                                                                className={`${styles.actionBtn} ${styles.deny}`}
-                                                                onClick={() => handleAction(req._id, 'denied')}
-                                                                title="Deny"
-                                                            >
-                                                                <X size={16} />
-                                                            </button>
-                                                        </>
-                                                    ) : req.paid ? (
-                                                        <button
-                                                            className={`${styles.actionBtn} ${styles.handover}`}
-                                                            onClick={() => handleManageHandover(req)}
-                                                            title="Manage Handover"
-                                                        >
-                                                            <Key size={16} />
-                                                        </button>
-                                                    ) : (
-                                                        <button className={styles.actionBtn} disabled style={{ opacity: 0.5 }}>
-                                                            No actions
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </>
                 )}
@@ -339,43 +411,45 @@ const AdminDashboard = () => {
                         <div className={styles.sectionHeader}>
                             <h3>All Reservations</h3>
                         </div>
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>Customer</th>
-                                    <th>Vehicle</th>
-                                    <th>Dates</th>
-                                    <th>Pickup Location</th>
-                                    <th>Drop-off Location</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {requests.map((req) => (
-                                    <tr key={req._id}>
-                                        <td>{req.userName}</td>
-                                        <td>{req.carName}</td>
-                                        <td>{new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}</td>
-                                        <td>{req.pickupLocation?.address || 'N/A'}</td>
-                                        <td>{req.dropoffLocation?.address || 'N/A'}</td>
-                                        <td>${req.totalAmount}</td>
-                                        <td>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                <span className={`${styles.statusBadge} ${styles[req.status]}`}>
-                                                    {req.status}
-                                                </span>
-                                                {req.paid && (
-                                                    <span className={`${styles.statusBadge} ${styles.approved}`} style={{ fontSize: '0.65rem' }}>
-                                                        PAID
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Vehicle</th>
+                                        <th>Dates</th>
+                                        <th>Pickup Location</th>
+                                        <th>Drop-off Location</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {requests.map((req) => (
+                                        <tr key={req._id}>
+                                            <td>{req.userName}</td>
+                                            <td>{req.carName}</td>
+                                            <td>{new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}</td>
+                                            <td>{req.pickupLocation?.address || 'N/A'}</td>
+                                            <td>{req.dropoffLocation?.address || 'N/A'}</td>
+                                            <td>${req.totalAmount}</td>
+                                            <td>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span className={`${styles.statusBadge} ${styles[req.status]}`}>
+                                                        {req.status}
+                                                    </span>
+                                                    {req.paid && (
+                                                        <span className={`${styles.statusBadge} ${styles.approved}`} style={{ fontSize: '0.65rem' }}>
+                                                            PAID
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
@@ -393,43 +467,45 @@ const AdminDashboard = () => {
                                 />
                             </div>
                         </div>
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>Customer Name</th>
-                                    <th>Email Address</th>
-                                    <th>Joined Date</th>
-                                    <th>Total Bookings</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>Loading customers...</td></tr>
-                                ) : filteredCustomers.length === 0 ? (
-                                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>No customers found.</td></tr>
-                                ) : (
-                                    filteredCustomers.map((cust) => (
-                                        <tr key={cust._id}>
-                                            <td>
-                                                <div className={styles.userCell}>
-                                                    <div className={styles.userAvatar}>{cust.name?.charAt(0) || 'U'}</div>
-                                                    <div style={{ fontWeight: 600 }}>{cust.name || 'N/A'}</div>
-                                                </div>
-                                            </td>
-                                            <td>{cust.email}</td>
-                                            <td>{new Date(cust.createdAt).toLocaleDateString()}</td>
-                                            <td>{requests.filter(r => r.userEmail === cust.email).length}</td>
-                                            <td>
-                                                <span className={`${styles.statusBadge} ${styles.approved}`}>
-                                                    Active
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Customer Name</th>
+                                        <th>Email Address</th>
+                                        <th>Joined Date</th>
+                                        <th>Total Bookings</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>Loading customers...</td></tr>
+                                    ) : filteredCustomers.length === 0 ? (
+                                        <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>No customers found.</td></tr>
+                                    ) : (
+                                        filteredCustomers.map((cust) => (
+                                            <tr key={cust._id}>
+                                                <td>
+                                                    <div className={styles.userCell}>
+                                                        <div className={styles.userAvatar}>{cust.name?.charAt(0) || 'U'}</div>
+                                                        <div style={{ fontWeight: 600 }}>{cust.name || 'N/A'}</div>
+                                                    </div>
+                                                </td>
+                                                <td>{cust.email}</td>
+                                                <td>{new Date(cust.createdAt).toLocaleDateString()}</td>
+                                                <td>{requests.filter(r => r.userEmail === cust.email).length}</td>
+                                                <td>
+                                                    <span className={`${styles.statusBadge} ${styles.approved}`}>
+                                                        Active
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
                 {activeSection === 'payments' && (
@@ -437,36 +513,38 @@ const AdminDashboard = () => {
                         <div className={styles.sectionHeader}>
                             <h3>Transaction History</h3>
                         </div>
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>Transaction ID</th>
-                                    <th>Customer</th>
-                                    <th>Car</th>
-                                    <th>Amount</th>
-                                    <th>Method</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>Loading payments...</td></tr>
-                                ) : payments.length === 0 ? (
-                                    <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>No payments found.</td></tr>
-                                ) : (
-                                    payments.map((p) => (
-                                        <tr key={p._id}>
-                                            <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{p.transactionId}</td>
-                                            <td>{p.booking?.userName || 'N/A'}</td>
-                                            <td>{p.booking?.carName || 'N/A'}</td>
-                                            <td style={{ fontWeight: 700 }}>${p.amount}</td>
-                                            <td>{p.paymentMethod}</td>
-                                            <td>{new Date(p.createdAt).toLocaleDateString()}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Customer</th>
+                                        <th>Car</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>Loading payments...</td></tr>
+                                    ) : payments.length === 0 ? (
+                                        <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>No payments found.</td></tr>
+                                    ) : (
+                                        payments.map((p) => (
+                                            <tr key={p._id}>
+                                                <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{p.transactionId}</td>
+                                                <td>{p.booking?.userName || 'N/A'}</td>
+                                                <td>{p.booking?.carName || 'N/A'}</td>
+                                                <td style={{ fontWeight: 700 }}>${p.amount}</td>
+                                                <td>{p.paymentMethod}</td>
+                                                <td>{new Date(p.createdAt).toLocaleDateString()}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
@@ -475,44 +553,46 @@ const AdminDashboard = () => {
                         <div className={styles.sectionHeader}>
                             <h3>Ride History</h3>
                         </div>
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>Ref ID</th>
-                                    <th>Customer</th>
-                                    <th>Vehicle</th>
-                                    <th>Duration</th>
-                                    <th>Amount</th>
-                                    <th>Pickup</th>
-                                    <th>Dropoff</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>Loading history...</td></tr>
-                                ) : rideHistory.length === 0 ? (
-                                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>No ride history yet.</td></tr>
-                                ) : (
-                                    rideHistory.map(item => (
-                                        <tr key={item._id}>
-                                            <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{item._id.slice(-6).toUpperCase()}</td>
-                                            <td>{item.userName}</td>
-                                            <td>{item.carName}</td>
-                                            <td>{item.duration} days</td>
-                                            <td>${item.totalAmount}</td>
-                                            <td>
-                                                <div style={{ fontSize: '0.9rem' }}>{item.pickupTime ? new Date(item.pickupTime).toLocaleString() : 'N/A'}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Loc: {item.pickupLocation?.address || 'N/A'}</div>
-                                            </td>
-                                            <td>
-                                                <div style={{ fontSize: '0.9rem' }}>{item.dropoffTime ? new Date(item.dropoffTime).toLocaleString() : 'N/A'}</div>
-                                                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Loc: {item.dropoffLocation?.address || 'N/A'}</div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>Ref ID</th>
+                                        <th>Customer</th>
+                                        <th>Vehicle</th>
+                                        <th>Duration</th>
+                                        <th>Amount</th>
+                                        <th>Pickup</th>
+                                        <th>Dropoff</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>Loading history...</td></tr>
+                                    ) : rideHistory.length === 0 ? (
+                                        <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem' }}>No ride history yet.</td></tr>
+                                    ) : (
+                                        rideHistory.map(item => (
+                                            <tr key={item._id}>
+                                                <td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{item._id.slice(-6).toUpperCase()}</td>
+                                                <td>{item.userName}</td>
+                                                <td>{item.carName}</td>
+                                                <td>{item.duration} days</td>
+                                                <td>${item.totalAmount}</td>
+                                                <td>
+                                                    <div style={{ fontSize: '0.9rem' }}>{item.pickupTime ? new Date(item.pickupTime).toLocaleString() : 'N/A'}</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Loc: {item.pickupLocation?.address || 'N/A'}</div>
+                                                </td>
+                                                <td>
+                                                    <div style={{ fontSize: '0.9rem' }}>{item.dropoffTime ? new Date(item.dropoffTime).toLocaleString() : 'N/A'}</div>
+                                                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Loc: {item.dropoffLocation?.address || 'N/A'}</div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
@@ -530,99 +610,101 @@ const AdminDashboard = () => {
                                 />
                             </div>
                         </div>
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>User</th>
-                                    <th>License Details</th>
-                                    <th>Documents</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>Loading licenses...</td></tr>
-                                ) : licenses.length === 0 ? (
-                                    <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>No license records found.</td></tr>
-                                ) : (
-                                    licenses
-                                        .filter(l =>
-                                            l.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                            l.licenseNumber?.toLowerCase().includes(searchTerm.toLowerCase())
-                                        )
-                                        .map((l) => (
-                                            <tr key={l._id}>
-                                                <td>
-                                                    <div className={styles.userCell}>
-                                                        <div className={styles.userAvatar}>
-                                                            {l.userId?.image ? <img src={l.userId.image} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} /> : (l.userId?.name?.charAt(0) || 'U')}
+                        <div className={styles.tableContainer}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>License Details</th>
+                                        <th>Documents</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loading ? (
+                                        <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>Loading licenses...</td></tr>
+                                    ) : licenses.length === 0 ? (
+                                        <tr><td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>No license records found.</td></tr>
+                                    ) : (
+                                        licenses
+                                            .filter(l =>
+                                                l.userId?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                l.licenseNumber?.toLowerCase().includes(searchTerm.toLowerCase())
+                                            )
+                                            .map((l) => (
+                                                <tr key={l._id}>
+                                                    <td>
+                                                        <div className={styles.userCell}>
+                                                            <div className={styles.userAvatar}>
+                                                                {l.userId?.image ? <img src={l.userId.image} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} /> : (l.userId?.name?.charAt(0) || 'U')}
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontWeight: 600 }}>{l.userId?.name || 'Unknown'}</div>
+                                                                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{l.userId?.email}</div>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <div style={{ fontWeight: 600 }}>{l.userId?.name || 'Unknown'}</div>
-                                                            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>{l.userId?.email}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div style={{ fontWeight: 600 }}>{l.licenseNumber}</div>
+                                                        <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Exp: {new Date(l.expiryDate).toLocaleDateString()}</div>
+                                                        <div style={{ fontSize: '0.81rem' }}>{l.issuingCountry}</div>
+                                                    </td>
+                                                    <td>
+                                                        <div className={styles.licenseGrid}>
+                                                            <div className={styles.licenseImgWrapper}>
+                                                                <label>Front</label>
+                                                                {l.frontImage ? (
+                                                                    <img
+                                                                        src={l.frontImage}
+                                                                        className={styles.licenseImg}
+                                                                        alt="Front"
+                                                                        onClick={() => setSelectedImage(l.frontImage)}
+                                                                    />
+                                                                ) : <div className={styles.licenseImg} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>N/A</div>}
+                                                            </div>
+                                                            <div className={styles.licenseImgWrapper}>
+                                                                <label>Back</label>
+                                                                {l.backImage ? (
+                                                                    <img
+                                                                        src={l.backImage}
+                                                                        className={styles.licenseImg}
+                                                                        alt="Back"
+                                                                        onClick={() => setSelectedImage(l.backImage)}
+                                                                    />
+                                                                ) : <div className={styles.licenseImg} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>N/A</div>}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div style={{ fontWeight: 600 }}>{l.licenseNumber}</div>
-                                                    <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Exp: {new Date(l.expiryDate).toLocaleDateString()}</div>
-                                                    <div style={{ fontSize: '0.81rem' }}>{l.issuingCountry}</div>
-                                                </td>
-                                                <td>
-                                                    <div className={styles.licenseGrid}>
-                                                        <div className={styles.licenseImgWrapper}>
-                                                            <label>Front</label>
-                                                            {l.frontImage ? (
-                                                                <img
-                                                                    src={l.frontImage}
-                                                                    className={styles.licenseImg}
-                                                                    alt="Front"
-                                                                    onClick={() => setSelectedImage(l.frontImage)}
-                                                                />
-                                                            ) : <div className={styles.licenseImg} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>N/A</div>}
+                                                    </td>
+                                                    <td>
+                                                        <span className={`${styles.statusBadge} ${styles[l.status]}`}>
+                                                            {l.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div className={styles.verifyActions}>
+                                                            <button
+                                                                className={`${styles.verifyBtnConfirm} ${styles.btnApprove}`}
+                                                                onClick={() => handleLicenseStatus(l._id, 'verified')}
+                                                                title="Approve License"
+                                                            >
+                                                                <Check size={18} />
+                                                            </button>
+                                                            <button
+                                                                className={`${styles.verifyBtnConfirm} ${styles.btnReject}`}
+                                                                onClick={() => handleLicenseStatus(l._id, 'rejected')}
+                                                                title="Reject License"
+                                                            >
+                                                                <X size={18} />
+                                                            </button>
                                                         </div>
-                                                        <div className={styles.licenseImgWrapper}>
-                                                            <label>Back</label>
-                                                            {l.backImage ? (
-                                                                <img
-                                                                    src={l.backImage}
-                                                                    className={styles.licenseImg}
-                                                                    alt="Back"
-                                                                    onClick={() => setSelectedImage(l.backImage)}
-                                                                />
-                                                            ) : <div className={styles.licenseImg} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>N/A</div>}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span className={`${styles.statusBadge} ${styles[l.status]}`}>
-                                                        {l.status}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div className={styles.verifyActions}>
-                                                        <button
-                                                            className={`${styles.verifyBtnConfirm} ${styles.btnApprove}`}
-                                                            onClick={() => handleLicenseStatus(l._id, 'verified')}
-                                                            title="Approve License"
-                                                        >
-                                                            <Check size={18} />
-                                                        </button>
-                                                        <button
-                                                            className={`${styles.verifyBtnConfirm} ${styles.btnReject}`}
-                                                            onClick={() => handleLicenseStatus(l._id, 'rejected')}
-                                                            title="Reject License"
-                                                        >
-                                                            <X size={18} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                )}
-                            </tbody>
-                        </table>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </main>

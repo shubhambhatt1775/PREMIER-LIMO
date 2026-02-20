@@ -143,7 +143,7 @@ const FleetManagement = () => {
             </div>
 
             {/* Fleet Table */}
-            <div className={styles.section}>
+            <div className={styles.tableContainer}>
                 <table className={styles.table}>
                     <thead>
                         <tr>

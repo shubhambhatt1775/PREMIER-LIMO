@@ -32,6 +32,14 @@
     color: #1a1a1a;
 }
 
+/* Hide floating icons/widgets in Admin Dashboard */
+.admin-theme [class*="whatsapp"],
+.admin-theme [class*="chat-widget"],
+.admin-theme [class*="floating-btn"],
+.admin-theme iframe[src*="whatsapp"] {
+    display: none !important;
+}
+
 .main-content {
     position: relative;
     z-index: 1;
