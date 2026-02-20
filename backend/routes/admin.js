@@ -3,6 +3,8 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Car = require('../models/Car');
 const User = require('../models/User');
+const DrivingLicense = require('../models/DrivingLicense');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
@@ -37,6 +39,42 @@ router.get('/customers', async (req, res) => {
     try {
         const customers = await User.find({ role: 'user' }).select('-password').sort({ createdAt: -1 });
         res.json(customers);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Get all licenses
+router.get('/licenses', async (req, res) => {
+    try {
+        const licenses = await DrivingLicense.find()
+            .populate('userId', 'name email image')
+            .sort({ createdAt: -1 });
+        res.json(licenses);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Update license status
+router.patch('/licenses/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        if (!['verified', 'rejected', 'pending'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const license = await DrivingLicense.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        ).populate('userId', 'name email');
+
+        if (!license) {
+            return res.status(404).json({ message: 'License not found' });
+        }
+
+        res.json(license);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

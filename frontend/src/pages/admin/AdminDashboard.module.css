@@ -510,6 +510,7 @@
         grid-template-columns: 1fr;
     }
 }
+
 .handover {
     color: #3b82f6 !important;
     border-color: #dbeafe !important;
@@ -639,4 +640,95 @@
     font-size: 0.85rem;
     font-style: italic;
     margin: 0;
+}
+
+/* License Verification Styles */
+.licenseGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.licenseImgWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.licenseImgWrapper label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+.licenseImg {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    cursor: zoom-in;
+    transition: 0.2s;
+}
+
+.licenseImg:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.verifyActions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.verifyBtnConfirm {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btnApprove {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+
+.btnApprove:hover {
+    background: #bbf7d0;
+}
+
+.btnReject {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.btnReject:hover {
+    background: #fecaca;
+}
+
+.imageModal {
+    max-width: 90vw;
+    max-height: 90vh;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+}
+
+.fullImg {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+    border-radius: 8px;
+    object-fit: contain;
 }
