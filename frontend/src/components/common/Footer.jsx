@@ -1,5 +1,5 @@
-import React from 'react';
 import { Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 
 const Footer = () => {
@@ -9,8 +9,9 @@ const Footer = () => {
                 <div className={styles.footerMain}>
                     <div className={styles.footerBrand}>
                         <h2 className={styles.footerLogo}>PREMIER <span>LIMO</span></h2>
-                        <p>307 Westwood Blvd, Bronx, NY 10472</p>
-                        <p>info@premierlimo.com</p>
+                        <p>S.G. Highway, Ahmedabad, Gujarat 380054</p>
+                        <p>info@premierlimo.in</p>
+
                         <div className={styles.newsletter}>
                             <p>Subscribe to the newsletter</p>
                             <div className={styles.newsInput}>
@@ -23,27 +24,27 @@ const Footer = () => {
                     <div className={styles.footerLinks}>
                         <div className={styles.linkColumn}>
                             <h4>Services</h4>
-                            <a href="#">New York</a>
-                            <a href="#">London</a>
-                            <a href="#">Berlin</a>
-                            <a href="#">Casablanca</a>
-                            <a href="#">Paris</a>
+                            <Link to="/city/ahmedabad">Ahmedabad</Link>
+                            <Link to="/city/gandhinagar">Gandhinagar</Link>
+                            <Link to="/city/mumbai">Mumbai</Link>
+                            <Link to="/city/delhi">Delhi</Link>
+                            <Link to="/city/bangalore">Bangalore</Link>
                         </div>
                         <div className={styles.linkColumn}>
                             <h4>Explore</h4>
-                            <a href="#">Industry rides</a>
-                            <a href="#">Limousine service</a>
-                            <a href="#">Chauffeur service</a>
-                            <a href="#">Private car service</a>
-                            <a href="#">Airport transfer</a>
+                            <Link to="/explore/industry-rides">Industry rides</Link>
+                            <Link to="/explore/limousine-service">Limousine service</Link>
+                            <Link to="/explore/chauffeur-service">Chauffeur service</Link>
+                            <Link to="/explore/private-car-service">Private car service</Link>
+                            <Link to="/services/airport-transfers">Airport transfer</Link>
                         </div>
                         <div className={styles.linkColumn}>
                             <h4>Top City Rides</h4>
-                            <a href="#">East Hampton - New York</a>
-                            <a href="#">New York - Washington</a>
-                            <a href="#">New York - Philadelphia</a>
-                            <a href="#">Abu Dhabi - Dubai</a>
-                            <a href="#">London - Birmingham</a>
+                            <Link to="/route/ahmedabad-gandhinagar">Ahmedabad - Gandhinagar</Link>
+                            <Link to="/route/mumbai-pune">Mumbai - Pune</Link>
+                            <Link to="/route/delhi-gurgaon">Delhi - Gurgaon</Link>
+                            <Link to="/route/bangalore-mysore">Bangalore - Mysore</Link>
+                            <Link to="/route/chennai-vellore">Chennai - Vellore</Link>
                         </div>
                     </div>
                 </div>
@@ -51,11 +52,14 @@ const Footer = () => {
                 <div className={styles.footerBottom}>
                     <p>&copy; 2024 PREMIER LIMO</p>
                     <div className={styles.legalLinks}>
-                        <a href="#">Terms</a>
-                        <a href="#">Privacy policy</a>
-                        <a href="#">Legal notice</a>
-                        <a href="#">Accessibility</a>
+                        <Link to="/terms">Terms</Link>
+                        <Link to="/privacy">Privacy policy</Link>
+                        <Link to="/legal-notice">Legal notice</Link>
+                        <Link to="/accessibility">Accessibility</Link>
+                        <Link to="/developer" className={styles.developerLink}>Developed by Shubham Bhatt</Link>
                     </div>
+
+
                     <div className={styles.socials}>
                         {/* Add social icons here */}
                     </div>

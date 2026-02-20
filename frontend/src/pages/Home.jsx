@@ -170,11 +170,12 @@ const Home = () => {
                             <button className="btn-primary">Open page</button>
                         </div>
                         <div className={styles.cityCards}>
-                            <CityCard name="New York" img="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&q=80&w=400" />
-                            <CityCard name="Atlanta" img="https://images.unsplash.com/photo-1550608514-42b785023fa3?auto=format&fit=crop&q=80&w=400" />
-                            <CityCard name="Boston" img="https://images.unsplash.com/photo-1501461322965-edf609fad441?auto=format&fit=crop&q=80&w=400" />
-                            <CityCard name="Chicago" img="https://images.unsplash.com/photo-1494522855154-9297ac3d6237?auto=format&fit=crop&q=80&w=400" />
+                            <CityCard name="Ahmedabad" img="https://t3.ftcdn.net/jpg/09/14/86/02/360_F_914860213_VnHqUj18TS00T1WJQFFD2WK0qlcD66YE.jpg" />
+                            <CityCard name="Gandhinagar" img="https://images.indianexpress.com/2023/08/Hotel-Leela-and-railway-station-near-Mahatma-Mandir.-Nirmal.jpg" />
+                            <CityCard name="Mumbai" img="https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/F7xZ48abwAAgNst.jpg/500px-F7xZ48abwAAgNst.jpg" />
+                            <CityCard name="Delhi" img="https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=400" />
                         </div>
+
                     </div>
                 </div>
             </section>

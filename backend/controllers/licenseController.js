@@ -1,6 +1,7 @@
 const DrivingLicense = require('../models/DrivingLicense');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const { sendPushToAdmins } = require('../utils/pushNotification');
 
 // @desc    Get user driving license
 // @route   GET /api/license
@@ -55,12 +56,23 @@ exports.upsertLicense = async (req, res) => {
 
         // Create notification for admin
         try {
+            const title = 'License Verification Request';
+            const message = `${req.user.name} submitted a driving license for verification.`;
+
             await Notification.create({
                 user: req.user._id,
                 type: 'license',
-                title: 'License Verification Request',
-                message: `${req.user.name} submitted a driving license for verification.`,
+                title,
+                message,
                 link: '/admin'
+            });
+
+            // Send Push
+            await sendPushToAdmins({
+                title,
+                body: message,
+                icon: '/favicon.ico',
+                data: { url: '/admin' }
             });
         } catch (notificationError) {
             console.error('Failed to create notification:', notificationError);

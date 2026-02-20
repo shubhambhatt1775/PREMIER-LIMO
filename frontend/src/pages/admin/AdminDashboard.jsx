@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
     LayoutDashboard, Briefcase, Calendar, Settings,
-    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu
+    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -12,12 +12,14 @@ import api from '../../services/api';
 import styles from './AdminDashboard.module.css';
 
 import FleetManagement from './FleetManagement';
+import AdminMessages from './AdminMessages';
 
 const AdminDashboard = () => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [activeSection, setActiveSection] = useState('overview');
+
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [showHandoverModal, setShowHandoverModal] = useState(false);
@@ -232,6 +234,12 @@ const AdminDashboard = () => {
                     >
                         <FileText size={20} /> Licenses
                     </div>
+                    <div
+                        className={`${styles.navItem} ${activeSection === 'messages' ? styles.navActive : ''}`}
+                        onClick={() => setActiveSection('messages')}
+                    >
+                        <MessageSquare size={20} /> Messages
+                    </div>
                 </nav>
                 <div className={styles.sidebarFooter}>
                     <div className={styles.sidebarFooterActions}>
@@ -295,6 +303,13 @@ const AdminDashboard = () => {
                 >
                     <FileText size={20} />
                     <span>Verify</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'messages' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('messages')}
+                >
+                    <MessageSquare size={20} />
+                    <span>Chat</span>
                 </div>
                 {/* Scrollable container could hold more, but let's stick to core or add a More button */}
                 <div
@@ -784,6 +799,8 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 )}
+
+                {activeSection === 'messages' && <AdminMessages />}
             </main>
 
             {/* Handover Modal */}

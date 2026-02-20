@@ -3,6 +3,7 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Car = require('../models/Car');
 const Notification = require('../models/Notification');
+const { sendPushNotification, sendPushToAdmins } = require('../utils/pushNotification');
 
 // Get all bookings (for admin)
 router.get('/', async (req, res) => {
@@ -63,12 +64,23 @@ router.post('/', async (req, res) => {
 
         // Create notification for admin
         try {
+            const title = 'New Booking Request';
+            const message = `${userName} requested to book ${carName} for ${duration} days.`;
+
             await Notification.create({
                 user: userId,
                 type: 'booking',
-                title: 'New Booking Request',
-                message: `${userName} requested to book ${carName} for ${duration} days.`,
+                title,
+                message,
                 link: '/admin'
+            });
+
+            // Send Push
+            await sendPushToAdmins({
+                title,
+                body: message,
+                icon: '/favicon.ico',
+                data: { url: '/admin' }
             });
         } catch (notificationError) {
             console.error('Failed to create notification:', notificationError);
@@ -92,9 +104,29 @@ router.patch('/:id/status', async (req, res) => {
 
         if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
-        // If approved, we might want to mark the car as unavailable, 
-        // but often availability is date-dependent. 
-        // For simple logic, we'll just update status.
+        // Notification for user
+        try {
+            const title = `Booking ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+            const message = `Your booking for ${booking.carName} has been ${status}.`;
+
+            await Notification.create({
+                user: booking.user,
+                type: 'booking',
+                title,
+                message,
+                link: '/dashboard/bookings'
+            });
+
+            // Send Push to User
+            await sendPushNotification(booking.user, {
+                title,
+                body: message,
+                icon: '/favicon.ico',
+                data: { url: '/dashboard/bookings' }
+            });
+        } catch (err) {
+            console.error('Error creating user notification:', err);
+        }
 
         res.json(booking);
     } catch (err) {

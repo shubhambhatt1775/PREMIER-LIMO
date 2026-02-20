@@ -105,6 +105,16 @@
     color: #fff;
 }
 
+.developerLink {
+    color: rgba(255, 215, 0, 0.4) !important;
+    font-weight: 500;
+}
+
+.developerLink:hover {
+    color: #FFD700 !important;
+}
+
+
 @media (max-width: 1200px) {
     .footerMain {
         grid-template-columns: 1fr;

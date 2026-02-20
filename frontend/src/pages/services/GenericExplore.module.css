@@ -1,0 +1,109 @@
+.explorePage {
+    padding-top: 120px;
+    background: transparent;
+    color: white;
+}
+
+.hero {
+    margin-bottom: 5rem;
+}
+
+.hero h1 {
+    font-size: 5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    letter-spacing: -2px;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.mainContent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    margin-bottom: 8rem;
+}
+
+.textSection .description {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3rem;
+}
+
+.featureList {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.featureItem {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.check {
+    color: var(--primary);
+}
+
+.imageSection img {
+    width: 100%;
+    border-radius: 40px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 100px;
+}
+
+.statItem {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3rem;
+    border-radius: 24px;
+    text-align: center;
+}
+
+.statItem svg {
+    width: 40px;
+    height: 40px;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+}
+
+.statItem h4 {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+@media (max-width: 992px) {
+    .mainContent {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .explorePage {
+        padding-top: 100px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}

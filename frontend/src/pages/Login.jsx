@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Github } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useGoogleLogin } from '@react-oauth/google';
+import FacebookLogin from 'react-facebook-login-lite';
 import styles from './Auth.module.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const { login } = useAuth();
+    const { login, googleLogin, facebookLogin } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -27,6 +29,31 @@ const Login = () => {
         }
     };
 
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            const result = await googleLogin(tokenResponse.access_token);
+            if (result.success) {
+                navigate(from, { replace: true });
+            } else {
+                setError(result.message);
+            }
+        },
+        onError: () => setError('Google login failed')
+    });
+
+    const handleFacebookResponse = async (response) => {
+        if (response.authResponse) {
+            const { accessToken, userID } = response.authResponse;
+            const result = await facebookLogin(accessToken, userID);
+            if (result.success) {
+                navigate(from, { replace: true });
+            } else {
+                setError(result.message);
+            }
+        } else {
+            setError('Facebook login failed');
+        }
+    };
 
     return (
         <div className={styles.authPage}>
@@ -85,14 +112,21 @@ const Login = () => {
                 </div>
 
                 <div className={styles.socialGrid}>
-                    <button className={styles.socialBtn}>
-                        <Github size={20} />
-                        GitHub
-                    </button>
-                    <button className={styles.socialBtn}>
+                    <button className={styles.socialBtn} onClick={() => handleGoogleLogin()}>
                         <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="18" />
                         Google
                     </button>
+                    <FacebookLogin
+                        appId={import.meta.env.VITE_FACEBOOK_APP_ID}
+                        onSuccess={handleFacebookResponse}
+                        onFailure={() => setError('Facebook login failed')}
+                        render={({ onClick }) => (
+                            <button className={styles.socialBtn} onClick={onClick}>
+                                <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" width="18" />
+                                Facebook
+                            </button>
+                        )}
+                    />
                 </div>
 
                 <p className={styles.switchAuth}>

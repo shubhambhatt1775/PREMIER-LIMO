@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useGoogleLogin } from '@react-oauth/google';
+import FacebookLogin from 'react-facebook-login-lite';
 import styles from './Auth.module.css';
 
 const Signup = () => {
@@ -10,7 +12,7 @@ const Signup = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const { signup } = useAuth();
+    const { signup, googleLogin, facebookLogin } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -25,6 +27,31 @@ const Signup = () => {
         }
     };
 
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            const result = await googleLogin(tokenResponse.access_token);
+            if (result.success) {
+                navigate('/');
+            } else {
+                setError(result.message);
+            }
+        },
+        onError: () => setError('Google registration failed')
+    });
+
+    const handleFacebookResponse = async (response) => {
+        if (response.authResponse) {
+            const { accessToken, userID } = response.authResponse;
+            const result = await facebookLogin(accessToken, userID);
+            if (result.success) {
+                navigate('/');
+            } else {
+                setError(result.message);
+            }
+        } else {
+            setError('Facebook registration failed');
+        }
+    };
 
     return (
         <div className={styles.authPage}>
@@ -88,6 +115,28 @@ const Signup = () => {
                         Get Started <ArrowRight size={18} />
                     </button>
                 </form>
+
+                <div className={styles.divider}>
+                    <span>or continue with</span>
+                </div>
+
+                <div className={styles.socialGrid}>
+                    <button className={styles.socialBtn} onClick={() => handleGoogleLogin()}>
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="18" />
+                        Google
+                    </button>
+                    <FacebookLogin
+                        appId={import.meta.env.VITE_FACEBOOK_APP_ID}
+                        onSuccess={handleFacebookResponse}
+                        onFailure={() => setError('Facebook registration failed')}
+                        render={({ onClick }) => (
+                            <button className={styles.socialBtn} onClick={onClick}>
+                                <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" width="18" />
+                                Facebook
+                            </button>
+                        )}
+                    />
+                </div>
 
                 <p className={styles.switchAuth}>
                     Already have an account? <Link to="/login">Sign in</Link>

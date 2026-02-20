@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/common/Navbar';
 import Home from './pages/Home';
@@ -24,7 +24,15 @@ import AirportTransfers from './pages/services/AirportTransfers';
 import SpecialEvents from './pages/services/SpecialEvents';
 import Services from './pages/Services';
 import FAQ from './pages/FAQ';
+import Developer from './pages/Developer';
+import { Terms, Privacy, LegalNotice, Accessibility } from './pages/legal/LegalPages';
+
+import { IndustryRides, LimousineService, ChauffeurService, PrivateCarService } from './pages/services/GenericExplore';
+import CityService from './components/services/CityService';
+import RouteService from './components/services/RouteService';
 import heroVideo from './assets/A_drive_like_no_other_the_Porsche_911_GT3_2160p.mp4';
+import ChatWidget from './components/chat/ChatWidget';
+
 import './App.css';
 
 const AppContent = () => {
@@ -45,8 +53,10 @@ const AppContent = () => {
             <source src={heroVideo} type="video/mp4" />
           </video>
           <div className="global-overlay"></div>
+          <ChatWidget />
         </>
       )}
+
 
       {!isAdminRoute && <Navbar />}
       <main className="main-content">
@@ -74,7 +84,29 @@ const AppContent = () => {
           <Route path="/services/special-events" element={<SpecialEvents />} />
           <Route path="/services" element={<Services />} />
           <Route path="/faq" element={<FAQ />} />
+
+          {/* Legal Routes */}
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/legal-notice" element={<LegalNotice />} />
+          <Route path="/accessibility" element={<Accessibility />} />
+
+          {/* Explore Services */}
+          <Route path="/explore/industry-rides" element={<IndustryRides />} />
+          <Route path="/explore/limousine-service" element={<LimousineService />} />
+          <Route path="/explore/chauffeur-service" element={<ChauffeurService />} />
+          <Route path="/explore/private-car-service" element={<PrivateCarService />} />
+
+          {/* City Services */}
+          <Route path="/city/:cityName" element={<CityService />} />
+
+          {/* Route Services */}
+          <Route path="/route/:routeSlug" element={<RouteService />} />
+          <Route path="/developer" element={<Developer />} />
+
           <Route path="*" element={<NotFound />} />
+
+
         </Routes>
       </main>
     </div>
@@ -95,12 +127,13 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </AuthProvider>
+      </GoogleOAuthProvider>
     </QueryClientProvider>
   );
 }

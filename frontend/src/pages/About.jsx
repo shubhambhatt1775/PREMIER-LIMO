@@ -36,8 +36,8 @@ const About = () => {
                                 We noticed a gap in the market for a truly premium, digital-first car rental experience.
                             </p>
                             <p>
-                                From corporate executives to international travelers, we provide a fleet that represents
-                                the pinnacle of automotive luxury.
+                                From corporate executives in Ahmedabad to travelers exploring the vibrant streets of India, we provide a fleet that represents the pinnacle of automotive luxury.
+
                             </p>
                             <button
                                 className="btn-primary"
@@ -52,21 +52,23 @@ const About = () => {
                                 <Mail className={styles.icon} />
                                 <div>
                                     <h4>Email Us</h4>
-                                    <p>hello@premierlimo.com</p>
+                                    <p>hello@premierlimo.in</p>
                                 </div>
                             </div>
                             <div className={styles.contactCard}>
                                 <Phone className={styles.icon} />
                                 <div>
                                     <h4>Call Us</h4>
-                                    <p>+1 (555) 000-1234</p>
+                                    <p>+91 79 4000 1234</p>
+
                                 </div>
                             </div>
                             <div className={styles.contactCard}>
                                 <MapPin className={styles.icon} />
                                 <div>
                                     <h4>Visit Us</h4>
-                                    <p>307 Westwood Blvd, Bronx, NY 10472</p>
+                                    <p>S.G. Highway, Ahmedabad, Gujarat 380054</p>
+
                                 </div>
                             </div>
                         </div>

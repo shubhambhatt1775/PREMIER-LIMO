@@ -26,7 +26,9 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 ## ✨ Features
 
 ### Customer Features
-- 🔐 **User Authentication** - Secure signup/login with JWT
+- 🔐 **User Authentication** - Secure signup/login with JWT and **Social Auth (Google/Facebook)**
+- 🔔 **Push Notifications** - Real-time browser notifications for booking status and alerts
+
 - 🪪 **Driving License** - Verify user identity with driving license info
 - 🚙 **Car Browsing** - Browse luxury cars with filters and search
 - 📅 **Booking System** - Real-time booking with date selection
@@ -38,6 +40,8 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 🗺️ **Map-Based Locations** - Choose pickup/dropoff points on an interactive map with auto-geocoding
 - 🌍 **Multi-language** - Support for English, Spanish, French, German
 - 📱 **Responsive Design** - Optimized for all devices
+- 💬 **Real-time Chat** - Chat with support admin in real-time
+
 
 ### Admin Features
 - 📊 **Analytics Dashboard** - Real-time statistics and metrics
@@ -47,6 +51,8 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 👥 **Customer Management** - View and manage customers
 - 💰 **Payment Tracking** - Monitor all transactions
 - 🔍 **Search & Filter** - Advanced filtering capabilities
+- 💬 **Customer Support Chat** - Manage multiple real-time conversations with users
+
 
 ### UI/UX Features
 - 🎨 **Modern Design** - Glassmorphism and smooth animations
@@ -72,6 +78,11 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 | **Lucide React** | 0.564.0 | Icon library |
 | **Leaflet / React Leaflet** | 4.2.1 | Maps & Geolocation |
 | **React Easy Crop** | 5.5.6 | Image cropping |
+| **Socket.io Client** | 4.8.1 | Real-time communication |
+| **@react-oauth/google** | 0.13.4 | Google Social Auth |
+| **react-facebook-login-lite** | 1.0.0 | Facebook Social Auth |
+
+
 
 ### Backend
 | Technology | Version | Purpose |
@@ -85,6 +96,11 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 | **CORS** | 2.8.6 | Cross-origin requests |
 | **dotenv** | 17.3.1 | Environment variables |
 | **ImageKit** | 6.0.0 | Image CDN & upload |
+| **Socket.io** | 4.8.1 | Real-time communication |
+| **web-push** | 3.6.7 | Push Notification protocol |
+| **google-auth-library** | 10.5.0 | Google OAuth verification |
+
+
 
 ### Development Tools
 - **Nodemon** - Auto-restart server
@@ -116,7 +132,9 @@ Car Rental/
 │   │   ├── payment.js             # Payment routes
 │   │   ├── admin.js               # Admin routes
 │   │   ├── imagekit.js            # ImageKit routes
-│   │   └── license.js             # License routes
+│   │   ├── license.js             # License routes
+│   │   └── chat.js                # Chat routes
+
 │   ├── .env                       # Environment variables
 │   ├── server.js                  # Entry point
 │   ├── seedAdmin.js               # Admin seeder
@@ -139,7 +157,9 @@ Car Rental/
 │   │   │   │   ├── CarFilter.jsx
 │   │   │   │   └── CarSearch.jsx
 │   │   │   ├── home/              # Home page components
-│   │   │   └── dashboard/         # Dashboard components
+│   │   │   ├── dashboard/         # Dashboard components
+│   │   │   └── chat/              # Chat components (ChatWidget)
+
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx    # Global auth state
 │   │   ├── pages/
@@ -153,7 +173,9 @@ Car Rental/
 │   │   │   ├── FAQ.jsx
 │   │   │   ├── admin/
 │   │   │   │   ├── AdminDashboard.jsx
-│   │   │   │   └── FleetManagement.jsx
+│   │   │   │   ├── FleetManagement.jsx
+│   │   │   │   └── AdminMessages.jsx
+
 │   │   │   └── user/
 │   │   │       ├── UserDashboard.jsx
 │   │   │       ├── UserBookings.jsx
@@ -191,7 +213,7 @@ Car Rental/
 
 ### Collections Overview
 
-The application uses MongoDB with 4 main collections:
+The application uses MongoDB with 8 main collections:
 
 #### 1. **Users Collection**
 ```javascript
@@ -204,12 +226,30 @@ The application uses MongoDB with 4 main collections:
   phone: String,
   address: String,
   image: String (profile picture URL),
+  googleId: String (unique, sparse),
+  facebookId: String (unique, sparse),
   drivingLicense: ObjectId (ref: 'DrivingLicense'),
+  pushSubscriptions: Array (endpoint, keys: {p256dh, auth}),
   createdAt: Date
 }
 ```
 
-#### 2. **Driving License Collection**
+#### 2. **Notifications Collection**
+```javascript
+{
+  _id: ObjectId,
+  user: ObjectId (ref: 'User', required),
+  type: String (enum: ['booking', 'payment', 'user', 'license', 'review']),
+  title: String (required),
+  message: String (required),
+  isRead: Boolean (default: false),
+  link: String,
+  createdAt: Date
+}
+```
+
+
+#### 3. **Driving License Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -224,7 +264,7 @@ The application uses MongoDB with 4 main collections:
 }
 ```
 
-#### 3. **Cars Collection**
+#### 4. **Cars Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -241,7 +281,7 @@ The application uses MongoDB with 4 main collections:
 }
 ```
 
-#### 3. **Bookings Collection**
+#### 5. **Bookings Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -270,7 +310,7 @@ The application uses MongoDB with 4 main collections:
 }
 ```
 
-#### 4. **Reviews Collection**
+#### 6. **Reviews Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -284,7 +324,7 @@ The application uses MongoDB with 4 main collections:
 }
 ```
 
-#### 5. **Payments Collection**
+#### 7. **Payments Collection**
 ```javascript
 {
   _id: ObjectId,
@@ -298,7 +338,20 @@ The application uses MongoDB with 4 main collections:
 }
 ```
 
+#### 8. **Messages Collection**
+```javascript
+{
+  _id: ObjectId,
+  sender: ObjectId (ref: 'User', required),
+  receiver: ObjectId (ref: 'User', required),
+  text: String (required),
+  isRead: Boolean (default: false),
+  timestamp: Date (default: Date.now)
+}
+```
+
 ### Database Relationships
+
 
 ```
           ┌──────────────────┐
@@ -493,7 +546,10 @@ Granular look at user identity verification.
 |--------|----------|-------------|---------------|
 | POST | `/signup` | Register new user | No |
 | POST | `/login` | User login | No |
+| POST | `/google` | Google Social Login | No |
+| POST | `/facebook` | Facebook Social Login | No |
 | PUT | `/profile` | Update user profile | Yes |
+
 
 ### Car Routes (`/api/cars`)
 | Method | Endpoint | Description | Auth Required |
@@ -543,6 +599,25 @@ Granular look at user identity verification.
 |--------|----------|-------------|---------------|
 | GET | `/auth` | Get ImageKit auth params | Admin |
 | GET | `/config` | Get ImageKit config | Admin |
+
+### Chat Routes (`/api/chat`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/messages/:userId/:otherId` | Get chat history | Yes |
+| POST | `/send` | Save new message | Yes |
+| GET | `/users/:adminId` | Get chat list for admin | Admin |
+| PUT | `/mark-read` | Mark messages as read | Yes |
+| GET | `/admin` | Get admin details | Yes |
+
+### Notification Routes (`/api/notifications`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/` | Get all notifications | Admin |
+| PATCH | `/:id/read` | Mark as read | Yes |
+| PATCH | `/read-all` | Mark all as read | Yes |
+| POST | `/subscribe` | Register push subscription | Yes |
+
+
 
 ---
 
@@ -625,7 +700,25 @@ JWT_SECRET=your_super_secret_jwt_key_here
 IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
 IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
 IMAGEKIT_URL_ENDPOINT=https://ik.imagekit.io/your_imagekit_id
+
+# Push Notifications (VAPID)
+VAPID_PUBLIC_KEY=your_public_key
+VAPID_PRIVATE_KEY=your_private_key
+VAPID_EMAIL=mailto:admin@example.com
+
+# Social Auth
+GOOGLE_CLIENT_ID=your_id
+FACEBOOK_APP_ID=your_id
 ```
+
+### Frontend `.env`
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your_id
+VITE_FACEBOOK_APP_ID=your_id
+VITE_VAPID_PUBLIC_KEY=your_key
+```
+
 
 ### Frontend Configuration
 The frontend uses Vite's proxy configuration to connect to the backend API. Update `vite.config.js` if needed:
@@ -885,5 +978,4 @@ This project is licensed under the MIT License.
 **TO DO**
 
 - [ ] Live GPS tracking of the cars
-- [ ] In-app chat support
-- [ ] Push notifications for booking updates
+- [ ] devloper info

@@ -4,6 +4,7 @@ const Review = require('../models/Review');
 const Car = require('../models/Car');
 const Booking = require('../models/Booking');
 const Notification = require('../models/Notification');
+const { sendPushToAdmins } = require('../utils/pushNotification');
 
 // Create a new review
 router.post('/', async (req, res) => {
@@ -40,12 +41,23 @@ router.post('/', async (req, res) => {
 
         // Create notification for admin
         try {
+            const title = 'New Car Review';
+            const message = `${userName} gave ${rating} stars to a vehicle.`;
+
             await Notification.create({
                 user: userId,
                 type: 'review',
-                title: 'New Car Review',
-                message: `${userName} gave ${rating} stars to a vehicle.`,
+                title,
+                message,
                 link: '/admin'
+            });
+
+            // Send Push
+            await sendPushToAdmins({
+                title,
+                body: message,
+                icon: '/favicon.ico',
+                data: { url: '/admin' }
             });
         } catch (notificationError) {
             console.error('Failed to create notification:', notificationError);

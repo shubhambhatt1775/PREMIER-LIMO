@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../services/api';
+import { subscribeToPush } from '../utils/pushNotification';
 
 const AuthContext = createContext();
 
@@ -11,6 +12,7 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('luxUser');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
+            subscribeToPush(api);
         }
         setLoading(false);
     }, []);
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }) => {
             const response = await api.post('/auth/login', { email, password });
             setUser(response.data);
             localStorage.setItem('luxUser', JSON.stringify(response.data));
+            subscribeToPush(api);
             return { success: true };
         } catch (error) {
             return {
@@ -39,11 +42,42 @@ export const AuthProvider = ({ children }) => {
             const response = await api.post('/auth/signup', userData);
             setUser(response.data);
             localStorage.setItem('luxUser', JSON.stringify(response.data));
+            subscribeToPush(api);
             return { success: true };
         } catch (error) {
             return {
                 success: false,
                 message: error.response?.data?.message || 'Signup failed'
+            };
+        }
+    };
+
+    const googleLogin = async (token) => {
+        try {
+            const response = await api.post('/auth/google', { token });
+            setUser(response.data);
+            localStorage.setItem('luxUser', JSON.stringify(response.data));
+            subscribeToPush(api);
+            return { success: true };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Google login failed'
+            };
+        }
+    };
+
+    const facebookLogin = async (accessToken, userID) => {
+        try {
+            const response = await api.post('/auth/facebook', { accessToken, userID });
+            setUser(response.data);
+            localStorage.setItem('luxUser', JSON.stringify(response.data));
+            subscribeToPush(api);
+            return { success: true };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Facebook login failed'
             };
         }
     };
@@ -54,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, logout, loading, updateUser }}>
+        <AuthContext.Provider value={{ user, login, signup, logout, loading, updateUser, googleLogin, facebookLogin }}>
             {!loading && children}
         </AuthContext.Provider>
     );

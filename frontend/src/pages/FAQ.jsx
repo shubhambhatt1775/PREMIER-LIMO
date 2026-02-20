@@ -26,8 +26,9 @@ const FAQ = () => {
         },
         {
             question: "Do you offer airport delivery?",
-            answer: "Yes, we offer premium airport meet-and-greet delivery services. Our team will bring the car directly to the arrivals terminal or a designated VIP parking area at your chosen airport."
+            answer: "Yes, we offer premium airport meet-and-greet delivery services. Our team will bring the car directly to the arrivals terminal or a designated VIP parking area at Sardar Vallabhbhai Patel International Airport (AMD) or any other major airport in India."
         },
+
         {
             question: "What insurance is included?",
             answer: "All rentals include basic Third Party Liability insurance. We strongly recommend upgrading to our Comprehensive Coverage for peace of mind, which reduces your liability to zero in case of damage or theft."
