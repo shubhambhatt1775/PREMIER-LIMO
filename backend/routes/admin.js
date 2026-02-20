@@ -98,4 +98,54 @@ router.get('/live-locations', async (req, res) => {
     }
 });
 
+// Get advanced analytics
+router.get('/analytics', async (req, res) => {
+    try {
+        // 1. Monthly Revenue
+        const monthlyRevenue = await Booking.aggregate([
+            { $match: { paid: true } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    revenue: { $sum: "$totalAmount" }
+                }
+            },
+            { $sort: { "_id": 1 } },
+            { $limit: 12 }
+        ]);
+
+        // 2. Most Booked Cars (Top 5)
+        const mostBookedCars = await Booking.aggregate([
+            {
+                $group: {
+                    _id: "$carName",
+                    bookings: { $sum: 1 }
+                }
+            },
+            { $sort: { bookings: -1 } },
+            { $limit: 5 }
+        ]);
+
+        // 3. Booking Trends (Total requests per month)
+        const bookingTrends = await Booking.aggregate([
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id": 1 } },
+            { $limit: 12 }
+        ]);
+
+        res.json({
+            monthlyRevenue: monthlyRevenue.map(item => ({ month: item._id, revenue: item.revenue })),
+            mostBookedCars: mostBookedCars.map(item => ({ name: item._id, bookings: item.bookings })),
+            bookingTrends: bookingTrends.map(item => ({ month: item._id, count: item.count }))
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;

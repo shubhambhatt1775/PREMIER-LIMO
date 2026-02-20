@@ -35,8 +35,8 @@
     gap: 1rem;
     padding: 0.75rem 1rem;
     border-radius: 8px;
-    font-weight: 500;
-    color: #9ca3af;
+    font-weight: 600;
+    color: #e5e7eb;
     transition: 0.2s;
     cursor: pointer;
 }
@@ -139,11 +139,45 @@
     }
 }
 
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chartCard {
+    background: #111;
+    padding: 1.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.chartCard h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .statInfo span {
     display: block;
-    font-size: 0.875rem;
-    color: #6b7280;
+    font-size: 0.9rem;
+    color: #4b5563;
     margin-bottom: 0.5rem;
+    font-weight: 500;
 }
 
 .statInfo h3 {
@@ -206,12 +240,12 @@
 }
 
 .table th {
-    background: #f9fafb;
+    background: #f3f4f6;
     text-align: left;
     padding: 1rem 1.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #4b5563;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #111827;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -221,6 +255,7 @@
     border-bottom: 1px solid #e5e7eb;
     font-size: 0.9rem;
     vertical-align: middle;
+    color: #111827;
 }
 
 .userCell {
@@ -232,13 +267,14 @@
 .userAvatar {
     width: 32px;
     height: 32px;
-    background: #e5e7eb;
+    background: #d1d5db;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.8rem;
+    color: #111827;
 }
 
 .statusBadge {
@@ -388,18 +424,19 @@
 
 .categoryBadge {
     font-size: 0.75rem;
-    font-weight: 600;
-    background: #f3f4f6;
+    font-weight: 700;
+    background: #e5e7eb;
     padding: 0.25rem 0.6rem;
     border-radius: 4px;
-    color: #4b5563;
+    color: #111827;
 }
 
 .featureList {
-    font-size: 0.8rem;
-    color: #6b7280;
+    font-size: 0.82rem;
+    color: #374151;
     display: flex;
     gap: 0.4rem;
+    font-weight: 500;
 }
 
 /* Modal Styles */
@@ -612,9 +649,9 @@
         align-items: center;
         justify-content: center;
         gap: 0.25rem;
-        color: #9ca3af;
+        color: #d1d5db;
         font-size: 0.65rem;
-        font-weight: 500;
+        font-weight: 600;
         transition: 0.2s;
         cursor: pointer;
         white-space: nowrap;
@@ -802,8 +839,8 @@
 }
 
 .mutedText {
-    color: #6b7280;
-    font-size: 0.85rem;
+    color: #4b5563;
+    font-size: 0.875rem;
     font-style: italic;
     margin: 0;
 }
@@ -829,9 +866,9 @@
 }
 
 .licenseImgWrapper label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6b7280;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #374151;
     text-transform: uppercase;
 }
 
@@ -1026,15 +1063,17 @@
 }
 
 .notifContent span {
-    font-size: 0.7rem;
-    color: #9ca3af;
+    font-size: 0.72rem;
+    color: #6b7280;
+    font-weight: 500;
 }
 
 .emptyNotifications {
     padding: 3rem 2rem;
     text-align: center;
-    color: #9ca3af;
-    font-size: 0.9rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 @media (max-width: 480px) {

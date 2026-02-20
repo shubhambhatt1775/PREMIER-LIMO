@@ -4,12 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
     LayoutDashboard, Briefcase, Calendar, Settings,
-    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare, Navigation
+    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare, Navigation, TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import styles from './AdminDashboard.module.css';
+import {
+    BarChart, Bar, LineChart, Line, XAxis, YAxis,
+    CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
+} from 'recharts';
 
 import FleetManagement from './FleetManagement';
 import AdminMessages from './AdminMessages';
@@ -90,6 +94,15 @@ const AdminDashboard = () => {
         queryFn: () => api.get('/admin/licenses'),
         enabled: activeSection === 'licenses',
     });
+
+    const { data: analyticsRes, isLoading: analyticsLoading } = useQuery({
+        queryKey: ['admin-analytics'],
+        queryFn: () => api.get('/admin/analytics'),
+        enabled: activeSection === 'overview' || activeSection === 'analytics',
+        refetchInterval: 300000, // Every 5 minutes
+    });
+
+    const analytics = analyticsRes?.data || { monthlyRevenue: [], mostBookedCars: [], bookingTrends: [] };
 
     // Mutations for UI and Data Updates
     const updateBookingStatus = useMutation({
@@ -181,6 +194,67 @@ const AdminDashboard = () => {
         c.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+    const DashboardCharts = () => (
+        <div className={styles.chartsGrid}>
+            <div className={styles.chartCard}>
+                <h4>Monthly Revenue</h4>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={analytics.monthlyRevenue}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis dataKey="month" stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
+                        <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
+                        <Tooltip
+                            contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+                            labelStyle={{ color: '#00ff88', fontWeight: 700, marginBottom: 4 }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                        />
+                        <Line type="monotone" dataKey="revenue" stroke="#00ff88" strokeWidth={2.5} dot={{ fill: '#00ff88', r: 4 }} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className={styles.chartCard}>
+                <h4>Most Booked Vehicles</h4>
+                <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={analytics.mostBookedCars} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis type="number" stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
+                        <YAxis dataKey="name" type="category" stroke="rgba(255,255,255,0.8)" fontSize={11} width={90} tick={{ fill: 'rgba(255,255,255,0.9)', fontWeight: 600 }} />
+                        <Tooltip
+                            contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+                            labelStyle={{ color: '#facc15', fontWeight: 700, marginBottom: 4 }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                        />
+                        <Bar dataKey="bookings" radius={[0, 4, 4, 0]}>
+                            {analytics.mostBookedCars.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className={styles.chartCard}>
+                <h4>Booking Trends</h4>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={analytics.bookingTrends}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis dataKey="month" stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
+                        <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
+                        <Tooltip
+                            contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+                            labelStyle={{ color: '#818cf8', fontWeight: 700, marginBottom: 4 }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                        />
+                        <Line type="monotone" dataKey="count" stroke="#818cf8" strokeWidth={2.5} dot={{ fill: '#818cf8', r: 4 }} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
+    );
+
     return (
         <div className={styles.adminWrapper}>
             {/* Mobile Top Bar */}
@@ -200,6 +274,12 @@ const AdminDashboard = () => {
                         onClick={() => setActiveSection('overview')}
                     >
                         <LayoutDashboard size={20} /> Dashboard
+                    </div>
+                    <div
+                        className={`${styles.navItem} ${activeSection === 'analytics' ? styles.navActive : ''}`}
+                        onClick={() => setActiveSection('analytics')}
+                    >
+                        <TrendingUp size={20} /> Analytics
                     </div>
                     <div
                         className={`${styles.navItem} ${activeSection === 'fleet' ? styles.navActive : ''}`}
@@ -284,6 +364,13 @@ const AdminDashboard = () => {
                 >
                     <Calendar size={20} />
                     <span>Booking</span>
+                </div>
+                <div
+                    className={`${styles.bottomNavItem} ${activeSection === 'analytics' ? styles.bottomActive : ''}`}
+                    onClick={() => setActiveSection('analytics')}
+                >
+                    <TrendingUp size={20} />
+                    <span>Analytics</span>
                 </div>
                 <div
                     className={`${styles.bottomNavItem} ${activeSection === 'customers' ? styles.bottomActive : ''}`}
@@ -510,6 +597,15 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     </>
+                )}
+
+                {activeSection === 'analytics' && (
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <h3>Advanced Analytics</h3>
+                        </div>
+                        <DashboardCharts />
+                    </div>
                 )}
 
                 {activeSection === 'fleet' && <FleetManagement />}

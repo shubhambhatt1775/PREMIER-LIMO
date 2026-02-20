@@ -1,6 +1,6 @@
 # 🚗 Premier Limo - Luxury Car Rental System
 
-A full-stack luxury car rental application built with the MERN stack, featuring a modern UI, multi-language support, and comprehensive admin dashboard.
+A full-stack luxury car rental application built with the MERN stack, featuring a modern UI, real-time analytics, smart availability checking, and a comprehensive admin dashboard.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)
@@ -42,19 +42,20 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 🌍 **Multi-language** - Support for English, Spanish, French, German
 - 📱 **Responsive Design** - Optimized for all devices
 - 💬 **Real-time Chat** - Chat with support admin in real-time
-- 🧠 **Smart Availability** - Date-based checks to prevent overlapping rentals
+- 🧠 **Smart Availability** - Date-based overlap checks prevent double bookings; booked dates visible in the booking modal
 
 
 ### Admin Features
-- 📊 **Analytics Dashboard** - Real-time statistics and metrics
+- 📊 **Advanced Analytics** - Dedicated Analytics section with interactive **Recharts** charts: Monthly Revenue, Most Booked Vehicles, and Booking Trends
 - 🚗 **Fleet Management** - Add, edit, delete vehicles
 - 📸 **Image Upload** - ImageKit.io integration for car images
-- 📋 **Booking Management** - Approve/deny booking requests
+- 📋 **Booking Management** - Approve/deny booking requests with race-condition protection
 - 👥 **Customer Management** - View and manage customers
 - 💰 **Payment Tracking** - Monitor all transactions
 - 🔍 **Search & Filter** - Advanced filtering capabilities
 - 💬 **Customer Support Chat** - Manage multiple real-time conversations with users
 - 🗺️ **Live Fleet Tracking** - Monitor all "On-Road" vehicles on a real-time interactive map
+- 🔔 **Notification Center** - Real-time notification bell with unread count and dropdown
 
 
 ### UI/UX Features
@@ -80,6 +81,7 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 | **react-i18next** | 16.5.4 | React i18n bindings |
 | **Lucide React** | 0.564.0 | Icon library |
 | **Leaflet / React Leaflet** | 4.2.1 | Maps & Live GPS Tracking |
+| **Recharts** | latest | Analytics charts (Revenue, Trends, Fleet) |
 | **React Easy Crop** | 5.5.6 | Image cropping |
 | **Socket.io Client** | 4.8.1 | Real-time communication |
 | **@react-oauth/google** | 0.13.4 | Google Social Auth |
@@ -129,7 +131,9 @@ Car Rental/
 │   │   ├── Payment.js             # Payment schema
 │   │   ├── DrivingLicense.js      # License schema
 │   │   ├── Handover.js            # OTP schema
-│   │   └── VehicleLocation.js     # Live GPS schema
+│   │   ├── VehicleLocation.js     # Live GPS schema
+│   │   ├── Availability.js        # Date-based rental availability
+│   │   └── Notification.js        # Admin notification schema
 │   ├── routes/
 │   │   ├── auth.js                # Auth routes
 │   │   ├── car.js                 # Car routes
@@ -647,6 +651,7 @@ Granular look at user identity verification.
 |--------|----------|-------------|---------------|
 | GET | `/stats` | Get dashboard statistics | Admin |
 | GET | `/customers` | Get all customers | Admin |
+| GET | `/analytics` | Get monthly revenue, trends, and top cars | Admin |
 | GET | `/live-locations`| Get all real-time vehicle positions | Admin |
 
 ### ImageKit Routes (`/api/imagekit`)
