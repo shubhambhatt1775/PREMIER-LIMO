@@ -241,6 +241,7 @@
     color: var(--text-muted);
     margin-bottom: 2rem;
 }
+
 /* Modal Styles */
 .modalOverlay {
     position: fixed;
@@ -482,3 +483,97 @@
     background: #e5e7eb;
 }
 
+/* Cancellation Styles */
+.pendingActions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.cancelLink {
+    background: none;
+    border: none;
+    color: var(--error);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    opacity: 0.8;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.cancelLink:hover:not(:disabled) {
+    opacity: 1;
+    color: #b91c1c;
+}
+
+.cancelLink:disabled {
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: not-allowed;
+}
+
+.policyBox {
+    width: 100%;
+    background: #fff5f5;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid #feb2b2;
+    text-align: left;
+}
+
+.policyBox h4 {
+    margin: 0 0 0.5rem 0;
+    color: #c53030;
+    font-size: 0.95rem;
+}
+
+.refundDetails p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.amount {
+    color: #2f855a !important;
+    font-size: 1.1rem;
+}
+
+.errorText {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #c53030;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.modalActions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.confirmCancelBtn {
+    flex: 1;
+    padding: 0.8rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.confirmCancelBtn:hover:not(:disabled) {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+.confirmCancelBtn:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}

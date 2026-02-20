@@ -36,13 +36,23 @@ A full-stack luxury car rental application built with the MERN stack, featuring 
 - 💳 **Payment Processing** - Multiple payment methods support
 - 📄 **Invoice Generation** - Downloadable/printable invoices
 - 👤 **Profile Management** - Update profile with image upload
-- 📊 **Dashboard** - Track bookings, payments, and history
+- 📊 **SaaS-Level Analytics** - Comprehensive data visualizations including:
+    - Monthly Revenue & Booking Trends
+    - Daily Activity (Last 30 days Area Chart)
+    - Revenue per Category (Donut Pie Chart)
+    - Customer Growth (Step Line Chart)
+    - Booking Cancellation Rate (Operational Pie Chart)
+- 🧠 **Smart Availability** - Date-based overlap checks prevent double bookings; booked dates visible in the booking modal
+- 💰 **Partial Refund Policy** - Automated time-based cancellation rules:
+    - > 48h before pickup: **100% Refund**
+    - 24h - 48h before pickup: **80% Partial Refund**
+    - < 24h before pickup: **Cancellation locked**
+- � **SaaS-Level Analytics** - Comprehensive data visualizations including:
 - ⭐ **Rating & Reviews** - Rate and review cars after successful rentals
 - 🗺️ **Map-Based Locations** - Choose pickup/dropoff points on an interactive map with auto-geocoding
 - 🌍 **Multi-language** - Support for English, Spanish, French, German
 - 📱 **Responsive Design** - Optimized for all devices
 - 💬 **Real-time Chat** - Chat with support admin in real-time
-- 🧠 **Smart Availability** - Date-based overlap checks prevent double bookings; booked dates visible in the booking modal
 
 
 ### Admin Features
@@ -1031,6 +1041,7 @@ This project is licensed under the MIT License.
 ## 👨‍💻 Author
 
 **Premier Limo Development Team**
+Shubham Bhatt :bhattshubham274@gmail.com
 
 ---
 

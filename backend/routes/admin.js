@@ -6,6 +6,7 @@ const User = require('../models/User');
 const DrivingLicense = require('../models/DrivingLicense');
 const VehicleLocation = require('../models/VehicleLocation');
 const Handover = require('../models/Handover');
+const Refund = require('../models/Refund');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // Get dashboard stats
@@ -138,10 +139,88 @@ router.get('/analytics', async (req, res) => {
             { $limit: 12 }
         ]);
 
+        // 4. Revenue per Category (Pie Chart)
+        const revenueByCategory = await Booking.aggregate([
+            { $match: { paid: true } },
+            {
+                $lookup: {
+                    from: 'cars',
+                    localField: 'car',
+                    foreignField: '_id',
+                    as: 'carDetails'
+                }
+            },
+            { $unwind: '$carDetails' },
+            {
+                $group: {
+                    _id: '$carDetails.category',
+                    revenue: { $sum: '$totalAmount' }
+                }
+            },
+            { $project: { name: '$_id', value: '$revenue', _id: 0 } }
+        ]);
+
+        // 5. Daily Bookings (for activity chart)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const dailyBookings = await Booking.aggregate([
+            { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        // 6. Customer Growth
+        const customerGrowth = await User.aggregate([
+            { $match: { role: 'user' } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id": 1 } },
+            { $limit: 12 }
+        ]);
+
+        // 7. Booking Cancellation Rate
+        const bookingStats = await Booking.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: 1 },
+                    cancelled: {
+                        $sum: { $cond: [{ $eq: ["$status", "cancelled"] }, 1, 0] }
+                    }
+                }
+            }
+        ]);
+
+        const cancellationData = bookingStats.length > 0 ? [
+            { name: 'Completed/Active', value: bookingStats[0].total - bookingStats[0].cancelled },
+            { name: 'Cancelled', value: bookingStats[0].cancelled }
+        ] : [];
+
+        // 8. Total Refunds
+        const refundStats = await Refund.aggregate([
+            { $group: { _id: null, total: { $sum: "$refundAmount" } } }
+        ]);
+
+        const totalRefunds = refundStats.length > 0 ? refundStats[0].total : 0;
+
         res.json({
             monthlyRevenue: monthlyRevenue.map(item => ({ month: item._id, revenue: item.revenue })),
             mostBookedCars: mostBookedCars.map(item => ({ name: item._id, bookings: item.bookings })),
-            bookingTrends: bookingTrends.map(item => ({ month: item._id, count: item.count }))
+            bookingTrends: bookingTrends.map(item => ({ month: item._id, count: item.count })),
+            revenueByCategory,
+            dailyBookings: dailyBookings.map(item => ({ date: item._id, count: item.count })),
+            customerGrowth: customerGrowth.map(item => ({ month: item._id, count: item.count })),
+            cancellationData,
+            totalRefunds
         });
     } catch (err) {
         res.status(500).json({ message: err.message });

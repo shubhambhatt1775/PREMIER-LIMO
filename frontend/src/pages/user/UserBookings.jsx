@@ -18,6 +18,8 @@ const UserBookings = () => {
     const [reviewBooking, setReviewBooking] = useState(null);
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [cancelBooking, setCancelBooking] = useState(null);
 
     // Queries for Bookings and History
     const { data: bookingsRes, isLoading: bookingsLoading } = useQuery({
@@ -66,6 +68,18 @@ const UserBookings = () => {
         onError: (err) => alert(err.response?.data?.message || 'Error submitting review'),
     });
 
+    const cancelBookingMutation = useMutation({
+        mutationFn: (id) => api.post(`/bookings/${id}/cancel`),
+        onSuccess: (res) => {
+            alert(`Booking cancelled. Refund of $${res.data.refundAmount.toFixed(2)} (${res.data.refundPercentage}%) has been processed.`);
+            setShowCancelModal(false);
+            setCancelBooking(null);
+            queryClient.invalidateQueries(['user-bookings']);
+            queryClient.invalidateQueries(['admin-stats']);
+        },
+        onError: (err) => alert(err.response?.data?.message || 'Error cancelling booking'),
+    });
+
     // Data Processing
     const allBookings = bookingsRes?.data || [];
     const bookings = allBookings.filter(b => b.status !== 'completed');
@@ -91,6 +105,17 @@ const UserBookings = () => {
             rating,
             comment
         });
+    };
+
+    const calculateRefundInfo = (booking) => {
+        if (!booking) return null;
+        const now = new Date();
+        const pickupDate = new Date(booking.startDate);
+        const hoursUntilPickup = (pickupDate - now) / (1000 * 60 * 60);
+
+        if (hoursUntilPickup > 48) return { percentage: 100, amount: booking.totalAmount };
+        if (hoursUntilPickup >= 24) return { percentage: 80, amount: booking.totalAmount * 0.8 };
+        return null;
     };
 
     return (
@@ -199,10 +224,36 @@ const UserBookings = () => {
                                         </>
                                     )}
                                     {booking.status === 'pending' && (
-                                        <div className={styles.waitingMsg}>
-                                            <AlertCircle size={14} />
-                                            <span>Awaiting approval</span>
+                                        <div className={styles.pendingActions}>
+                                            <div className={styles.waitingMsg}>
+                                                <AlertCircle size={14} />
+                                                <span>Awaiting approval</span>
+                                            </div>
+                                            <button
+                                                className={styles.cancelLink}
+                                                onClick={() => {
+                                                    setCancelBooking(booking);
+                                                    setShowCancelModal(true);
+                                                }}
+                                            >
+                                                Cancel Request
+                                            </button>
                                         </div>
+                                    )}
+                                    {booking.status === 'approved' && (
+                                        <button
+                                            className={styles.cancelLink}
+                                            disabled={new Date(booking.startDate) - new Date() < 24 * 60 * 60 * 1000}
+                                            onClick={() => {
+                                                setCancelBooking(booking);
+                                                setShowCancelModal(true);
+                                            }}
+                                        >
+                                            {new Date(booking.startDate) - new Date() < 24 * 60 * 60 * 1000
+                                                ? 'Cancellation Locked'
+                                                : 'Cancel Booking'
+                                            }
+                                        </button>
                                     )}
                                 </div>
                             </motion.div>
@@ -404,6 +455,57 @@ const UserBookings = () => {
                                         )}
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Cancellation Modal */}
+            {showCancelModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowCancelModal(false)}>
+                    <motion.div
+                        className={styles.modalContent}
+                        onClick={e => e.stopPropagation()}
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                    >
+                        <div className={styles.modalHeader}>
+                            <h2>Cancel Booking</h2>
+                            <button className={styles.closeBtn} onClick={() => setShowCancelModal(false)}><X size={24} /></button>
+                        </div>
+
+                        <div className={styles.reviewBody}>
+                            <p>Are you sure you want to cancel your booking for <strong>{cancelBooking?.carName}</strong>?</p>
+
+                            <div className={styles.policyBox}>
+                                <h4>Refund Policy</h4>
+                                {(() => {
+                                    const refund = calculateRefundInfo(cancelBooking);
+                                    if (!refund) return (
+                                        <p className={styles.errorText}>
+                                            <AlertCircle size={16} />
+                                            Cancellation is no longer allowed (less than 24h until pickup).
+                                        </p>
+                                    );
+                                    return (
+                                        <div className={styles.refundDetails}>
+                                            <p>Eligible Refund: <strong>{refund.percentage}%</strong></p>
+                                            <p>Refund Amount: <strong className={styles.amount}>${refund.amount.toFixed(2)}</strong></p>
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            <div className={styles.modalActions}>
+                                <button className="btn-secondary" onClick={() => setShowCancelModal(false)}>Keep Booking</button>
+                                <button
+                                    className={styles.confirmCancelBtn}
+                                    onClick={() => cancelBookingMutation.mutate(cancelBooking._id)}
+                                    disabled={cancelBookingMutation.isLoading || !calculateRefundInfo(cancelBooking)}
+                                >
+                                    {cancelBookingMutation.isLoading ? 'Processing...' : 'Confirm Cancellation'}
+                                </button>
                             </div>
                         </div>
                     </motion.div>

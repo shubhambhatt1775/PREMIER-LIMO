@@ -4,6 +4,7 @@ const Booking = require('../models/Booking');
 const Car = require('../models/Car');
 const Notification = require('../models/Notification');
 const Availability = require('../models/Availability');
+const Refund = require('../models/Refund');
 const { sendPushNotification, sendPushToAdmins } = require('../utils/pushNotification');
 
 // Get all bookings (for admin)
@@ -187,6 +188,89 @@ router.get('/car/:carId/booked-dates', async (req, res) => {
             start: b.startDate,
             end: b.endDate
         })));
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// User cancellation with partial refund policy
+router.post('/:id/cancel', async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+        if (booking.status === 'cancelled') {
+            return res.status(400).json({ message: 'Booking is already cancelled' });
+        }
+
+        const now = new Date();
+        const pickupDate = new Date(booking.startDate);
+        const hoursUntilPickup = (pickupDate - now) / (1000 * 60 * 60);
+
+        let refundPercentage = 0;
+        let refundAmount = 0;
+
+        if (hoursUntilPickup > 48) {
+            refundPercentage = 100;
+            refundAmount = booking.totalAmount;
+        } else if (hoursUntilPickup >= 24) {
+            refundPercentage = 80;
+            refundAmount = booking.totalAmount * 0.8;
+        } else {
+            return res.status(400).json({
+                message: 'Cancellation is not allowed within 24 hours of pickup time.'
+            });
+        }
+
+        // Update booking status
+        booking.status = 'cancelled';
+        await booking.save();
+
+        // Restore availability
+        await Availability.findOneAndDelete({ booking: booking._id });
+
+        // Store refund data
+        const refund = new Refund({
+            booking: booking._id,
+            user: booking.user,
+            carName: booking.carName,
+            totalAmount: booking.totalAmount,
+            refundAmount,
+            refundPercentage,
+            reason: 'User Cancellation (Automatic Policy)'
+        });
+        await refund.save();
+
+        // Notify Admin
+        try {
+            const adminTitle = 'Booking Cancelled (Refund Issued)';
+            const adminMsg = `${booking.userName} cancelled booking for ${booking.carName}. Refund: $${refundAmount.toFixed(2)} (${refundPercentage}%)`;
+
+            await Notification.create({
+                user: booking.user,
+                type: 'booking',
+                title: adminTitle,
+                message: adminMsg,
+                link: '/admin'
+            });
+
+            await sendPushToAdmins({
+                title: adminTitle,
+                body: adminMsg,
+                icon: '/favicon.ico',
+                data: { url: '/admin' }
+            });
+        } catch (err) {
+            console.error('Admin notification error:', err);
+        }
+
+        res.json({
+            message: 'Booking cancelled successfully',
+            refundAmount,
+            refundPercentage,
+            booking
+        });
+
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

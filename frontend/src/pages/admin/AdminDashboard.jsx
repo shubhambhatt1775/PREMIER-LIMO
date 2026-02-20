@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
     LayoutDashboard, Briefcase, Calendar, Settings,
-    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare, Navigation, TrendingUp
+    Bell, Search, ChevronRight, LogOut, CreditCard, Key, CheckCircle, MapPin, FileText, Menu, MessageSquare, Navigation, TrendingUp, RotateCcw
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,8 @@ import api from '../../services/api';
 import styles from './AdminDashboard.module.css';
 import {
     BarChart, Bar, LineChart, Line, XAxis, YAxis,
-    CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
+    CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell,
+    AreaChart, Area
 } from 'recharts';
 
 import FleetManagement from './FleetManagement';
@@ -102,7 +103,15 @@ const AdminDashboard = () => {
         refetchInterval: 300000, // Every 5 minutes
     });
 
-    const analytics = analyticsRes?.data || { monthlyRevenue: [], mostBookedCars: [], bookingTrends: [] };
+    const analytics = analyticsRes?.data || {
+        monthlyRevenue: [],
+        mostBookedCars: [],
+        bookingTrends: [],
+        revenueByCategory: [],
+        dailyBookings: [],
+        customerGrowth: [],
+        cancellationData: []
+    };
 
     // Mutations for UI and Data Updates
     const updateBookingStatus = useMutation({
@@ -183,6 +192,7 @@ const AdminDashboard = () => {
 
     const stats = [
         { label: 'Total Revenue', value: statsData.totalRevenue, icon: <DollarSign size={20} />, class: styles.iconGreen },
+        { label: 'Total Refunds', value: `$${analytics.totalRefunds?.toLocaleString() || '0'}`, icon: <RotateCcw size={20} />, class: styles.iconOrange },
         { label: 'Active Bookings', value: statsData.activeBookings.toString(), icon: <Briefcase size={20} />, class: styles.iconBlue },
         { label: 'Pending Requests', value: statsData.pendingRequests.toString(), icon: <Clock size={20} />, class: styles.iconOrange },
         { label: 'Total Customers', value: statsData.totalCustomers.toString(), icon: <Users size={20} />, class: styles.iconPurple },
@@ -216,6 +226,56 @@ const AdminDashboard = () => {
             </div>
 
             <div className={styles.chartCard}>
+                <h4>Revenue per Category</h4>
+                <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                        <Pie
+                            data={analytics.revenueByCategory}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                            {analytics.revenueByCategory.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip
+                            contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                        />
+                        <Legend iconType="circle" />
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className={styles.chartCard}>
+                <h4>Daily Booking Activity (Last 30 Days)</h4>
+                <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={analytics.dailyBookings}>
+                        <defs>
+                            <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#facc15" stopOpacity={0.8} />
+                                <stop offset="95%" stopColor="#facc15" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                        <XAxis dataKey="date" stroke="rgba(255,255,255,0.8)" fontSize={10} tick={{ fill: 'rgba(255,255,255,0.85)' }} />
+                        <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)' }} />
+                        <Tooltip
+                            contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                        />
+                        <Area type="monotone" dataKey="count" stroke="#facc15" fillOpacity={1} fill="url(#colorCount)" />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className={styles.chartCard}>
                 <h4>Most Booked Vehicles</h4>
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={analytics.mostBookedCars} layout="vertical">
@@ -237,19 +297,44 @@ const AdminDashboard = () => {
             </div>
 
             <div className={styles.chartCard}>
-                <h4>Booking Trends</h4>
+                <h4>Customer Growth</h4>
                 <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={analytics.bookingTrends}>
+                    <LineChart data={analytics.customerGrowth}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-                        <XAxis dataKey="month" stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
-                        <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)', fontWeight: 500 }} />
+                        <XAxis dataKey="month" stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)' }} />
+                        <YAxis stroke="rgba(255,255,255,0.8)" fontSize={12} tick={{ fill: 'rgba(255,255,255,0.85)' }} />
                         <Tooltip
                             contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
-                            labelStyle={{ color: '#818cf8', fontWeight: 700, marginBottom: 4 }}
                             itemStyle={{ color: '#ffffff', fontWeight: 500 }}
                         />
-                        <Line type="monotone" dataKey="count" stroke="#818cf8" strokeWidth={2.5} dot={{ fill: '#818cf8', r: 4 }} />
+                        <Line type="stepAfter" dataKey="count" stroke="#00d2ff" strokeWidth={3} dot={{ fill: '#00d2ff', r: 6 }} />
                     </LineChart>
+                </ResponsiveContainer>
+            </div>
+
+            <div className={styles.chartCard}>
+                <h4>Booking Cancellation Rate</h4>
+                <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                        <Pie
+                            data={analytics.cancellationData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            labelLine={false}
+                            label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                        >
+                            <Cell fill="#00ff88" />
+                            <Cell fill="#ef4444" />
+                        </Pie>
+                        <Tooltip
+                            contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 500 }}
+                        />
+                        <Legend />
+                    </PieChart>
                 </ResponsiveContainer>
             </div>
         </div>
