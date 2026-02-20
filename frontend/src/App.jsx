@@ -131,7 +131,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || "luxdrive-placeholder-id.apps.googleusercontent.com"}>
         <AuthProvider>
           <Router>
             <AppContent />
