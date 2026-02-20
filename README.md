@@ -1050,6 +1050,3 @@ This project is licensed under the MIT License.
 
 
 
-**TO DO**
-
-- [ ] Live GPS tracking of the cars
