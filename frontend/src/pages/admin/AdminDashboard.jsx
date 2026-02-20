@@ -23,8 +23,35 @@ const AdminDashboard = () => {
     const [showHandoverModal, setShowHandoverModal] = useState(false);
     const [otpInput, setOtpInput] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     // Queries for Real-time Data
+    const { data: notificationsRes, refetch: refetchNotifications } = useQuery({
+        queryKey: ['notifications'],
+        queryFn: () => api.get('/notifications'),
+        refetchInterval: 30000,
+    });
+
+    const notifications = notificationsRes?.data || [];
+    const unreadCount = notifications.filter(n => !n.isRead).length;
+
+    const markAsRead = async (id) => {
+        try {
+            await api.patch(`/notifications/${id}/read`);
+            refetchNotifications();
+        } catch (err) {
+            console.error('Error marking as read:', err);
+        }
+    };
+
+    const markAllAsRead = async () => {
+        try {
+            await api.patch('/notifications/read-all');
+            refetchNotifications();
+        } catch (err) {
+            console.error('Error marking all as read:', err);
+        }
+    };
     const { data: statsRes, isLoading: statsLoading } = useQuery({
         queryKey: ['admin-stats'],
         queryFn: () => api.get('/admin/stats'),
@@ -286,7 +313,57 @@ const AdminDashboard = () => {
                         <div className={styles.topBar}>
                             <h1>Dashboard Overview</h1>
                             <div className={styles.topBarActions}>
-                                <button className={styles.actionBtn}><Bell size={20} /></button>
+                                <div className={styles.notificationWrapper}>
+                                    <button
+                                        className={styles.actionBtn}
+                                        onClick={() => setShowNotifications(!showNotifications)}
+                                    >
+                                        <Bell size={20} />
+                                        {unreadCount > 0 && <span className={styles.unreadDot}>{unreadCount}</span>}
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {showNotifications && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                className={styles.notificationDropdown}
+                                            >
+                                                <div className={styles.dropdownHeader}>
+                                                    <h4>Notifications</h4>
+                                                    <button onClick={markAllAsRead}>Mark all as read</button>
+                                                </div>
+                                                <div className={styles.notificationList}>
+                                                    {notifications.length === 0 ? (
+                                                        <div className={styles.emptyNotifications}>No new notifications</div>
+                                                    ) : (
+                                                        notifications.map((notif) => (
+                                                            <div
+                                                                key={notif._id}
+                                                                className={`${styles.notificationItem} ${!notif.isRead ? styles.unread : ''}`}
+                                                                onClick={() => markAsRead(notif._id)}
+                                                            >
+                                                                <div className={styles.notifIcon}>
+                                                                    {notif.type === 'booking' && <Calendar size={16} />}
+                                                                    {notif.type === 'payment' && <DollarSign size={16} />}
+                                                                    {notif.type === 'user' && <Users size={16} />}
+                                                                    {notif.type === 'license' && <FileText size={16} />}
+                                                                    {notif.type === 'review' && <CheckCircle size={16} />}
+                                                                </div>
+                                                                <div className={styles.notifContent}>
+                                                                    <h6>{notif.title}</h6>
+                                                                    <p>{notif.message}</p>
+                                                                    <span>{new Date(notif.createdAt).toLocaleTimeString()}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             </div>
                         </div>
 

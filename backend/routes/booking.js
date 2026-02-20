@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/Booking');
 const Car = require('../models/Car');
+const Notification = require('../models/Notification');
 
 // Get all bookings (for admin)
 router.get('/', async (req, res) => {
@@ -59,6 +60,20 @@ router.post('/', async (req, res) => {
         });
 
         const newBooking = await booking.save();
+
+        // Create notification for admin
+        try {
+            await Notification.create({
+                user: userId,
+                type: 'booking',
+                title: 'New Booking Request',
+                message: `${userName} requested to book ${carName} for ${duration} days.`,
+                link: '/admin'
+            });
+        } catch (notificationError) {
+            console.error('Failed to create notification:', notificationError);
+        }
+
         res.status(201).json(newBooking);
     } catch (err) {
         res.status(400).json({ message: err.message });

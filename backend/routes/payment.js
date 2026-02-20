@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Payment = require('../models/Payment');
 const Booking = require('../models/Booking');
+const Notification = require('../models/Notification');
 
 // Get all payments (for admin)
 router.get('/', async (req, res) => {
@@ -35,6 +36,19 @@ router.post('/', async (req, res) => {
         });
 
         res.status(201).json(payment);
+
+        // Create notification for admin
+        try {
+            await Notification.create({
+                user: userId,
+                type: 'payment',
+                title: 'New Payment Received',
+                message: `$${amount} payment received via ${paymentMethod} for booking.`,
+                link: '/admin'
+            });
+        } catch (notificationError) {
+            console.error('Failed to create notification:', notificationError);
+        }
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

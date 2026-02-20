@@ -906,3 +906,145 @@
     border-radius: 8px;
     object-fit: contain;
 }
+
+.notificationWrapper {
+    position: relative;
+}
+
+.unreadDot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+.notificationDropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 360px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.dropdownHeader {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+}
+
+.dropdownHeader h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dropdownHeader button {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3b82f6;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdownHeader button:hover {
+    text-decoration: underline;
+}
+
+.notificationList {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notificationItem {
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.notificationItem:hover {
+    background: #f9fafb;
+}
+
+.unread {
+    background: #eff6ff;
+}
+
+.unread:hover {
+    background: #dbeafe;
+}
+
+.notifIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5563;
+    flex-shrink: 0;
+}
+
+.unread .notifIcon {
+    background: white;
+    color: #3b82f6;
+}
+
+.notifContent h6 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.notifContent p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+    color: #4b5563;
+    line-height: 1.4;
+}
+
+.notifContent span {
+    font-size: 0.7rem;
+    color: #9ca3af;
+}
+
+.emptyNotifications {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+    .notificationDropdown {
+        position: fixed;
+        top: 70px;
+        left: 1rem;
+        right: 1rem;
+        width: calc(100% - 2rem);
+    }
+}

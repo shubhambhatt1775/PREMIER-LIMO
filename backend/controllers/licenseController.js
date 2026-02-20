@@ -1,5 +1,6 @@
 const DrivingLicense = require('../models/DrivingLicense');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // @desc    Get user driving license
 // @route   GET /api/license
@@ -51,6 +52,19 @@ exports.upsertLicense = async (req, res) => {
         }
 
         res.status(200).json(license);
+
+        // Create notification for admin
+        try {
+            await Notification.create({
+                user: req.user._id,
+                type: 'license',
+                title: 'License Verification Request',
+                message: `${req.user.name} submitted a driving license for verification.`,
+                link: '/admin'
+            });
+        } catch (notificationError) {
+            console.error('Failed to create notification:', notificationError);
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

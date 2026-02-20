@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -33,6 +34,19 @@ exports.signup = async (req, res) => {
         });
 
         if (user) {
+            // Create notification for admin
+            try {
+                await Notification.create({
+                    user: user._id,
+                    type: 'user',
+                    title: 'New Customer Registered',
+                    message: `${user.name} (${user.email}) just joined Premier Limo.`,
+                    link: '/admin'
+                });
+            } catch (notificationError) {
+                console.error('Failed to create notification:', notificationError);
+            }
+
             res.status(201).json({
                 _id: user._id,
                 name: user.name,

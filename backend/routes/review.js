@@ -3,6 +3,7 @@ const router = express.Router();
 const Review = require('../models/Review');
 const Car = require('../models/Car');
 const Booking = require('../models/Booking');
+const Notification = require('../models/Notification');
 
 // Create a new review
 router.post('/', async (req, res) => {
@@ -36,6 +37,19 @@ router.post('/', async (req, res) => {
         }
 
         res.status(201).json(review);
+
+        // Create notification for admin
+        try {
+            await Notification.create({
+                user: userId,
+                type: 'review',
+                title: 'New Car Review',
+                message: `${userName} gave ${rating} stars to a vehicle.`,
+                link: '/admin'
+            });
+        } catch (notificationError) {
+            console.error('Failed to create notification:', notificationError);
+        }
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
