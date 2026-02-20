@@ -5,6 +5,7 @@ const Car = require('../models/Car');
 const Notification = require('../models/Notification');
 const Availability = require('../models/Availability');
 const Refund = require('../models/Refund');
+const { cache } = require('../utils/cache');
 const { sendPushNotification, sendPushToAdmins } = require('../utils/pushNotification');
 
 // Get all bookings (for admin)
@@ -148,6 +149,10 @@ router.patch('/:id/status', async (req, res) => {
         booking.status = status;
         await booking.save();
 
+        // Invalidate Admin Stats & Analytics Cache
+        cache.del(['admin:stats', 'admin:analytics']);
+        console.log('🗑️ Cache Purged: Admin Dashboard Data');
+
         if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
         // Notification for user
@@ -240,6 +245,10 @@ router.post('/:id/cancel', async (req, res) => {
             reason: 'User Cancellation (Automatic Policy)'
         });
         await refund.save();
+
+        // Invalidate Admin Stats & Analytics Cache
+        cache.del(['admin:stats', 'admin:analytics']);
+        console.log('🗑️ Cache Purged: Admin Dashboard Data (Cancellation)');
 
         // Notify Admin
         try {

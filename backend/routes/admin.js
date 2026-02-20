@@ -7,11 +7,18 @@ const DrivingLicense = require('../models/DrivingLicense');
 const VehicleLocation = require('../models/VehicleLocation');
 const Handover = require('../models/Handover');
 const Refund = require('../models/Refund');
+const { cache, TTL } = require('../utils/cache');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 // Get dashboard stats
 router.get('/stats', async (req, res) => {
     try {
+        const cachedStats = cache.get('admin:stats');
+        if (cachedStats) {
+            console.log('⚡ Cache Hit: Admin Stats');
+            return res.json(cachedStats);
+        }
+
         const totalCars = await Car.countDocuments();
         const pendingBookings = await Booking.countDocuments({ status: 'pending' });
         const activeBookings = await Booking.countDocuments({ status: 'approved' });
@@ -24,17 +31,20 @@ router.get('/stats', async (req, res) => {
         ]);
 
         const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
-
         const onRoadCount = await Handover.countDocuments({ status: 'picked_up' });
 
-        res.json({
+        const stats = {
             totalRevenue: `$${totalRevenue.toLocaleString()}`,
             activeBookings,
             pendingRequests: pendingBookings,
             totalFleet: totalCars,
             totalCustomers,
             onRoad: onRoadCount
-        });
+        };
+
+        cache.set('admin:stats', stats, TTL.SHORT);
+        console.log('💾 Cache Miss: Admin Stats (Stored)');
+        res.json(stats);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -102,6 +112,12 @@ router.get('/live-locations', async (req, res) => {
 // Get advanced analytics
 router.get('/analytics', async (req, res) => {
     try {
+        const cachedAnalytics = cache.get('admin:analytics');
+        if (cachedAnalytics) {
+            console.log('⚡ Cache Hit: Advanced Analytics');
+            return res.json(cachedAnalytics);
+        }
+
         // 1. Monthly Revenue
         const monthlyRevenue = await Booking.aggregate([
             { $match: { paid: true } },
@@ -212,7 +228,7 @@ router.get('/analytics', async (req, res) => {
 
         const totalRefunds = refundStats.length > 0 ? refundStats[0].total : 0;
 
-        res.json({
+        const analyticsData = {
             monthlyRevenue: monthlyRevenue.map(item => ({ month: item._id, revenue: item.revenue })),
             mostBookedCars: mostBookedCars.map(item => ({ name: item._id, bookings: item.bookings })),
             bookingTrends: bookingTrends.map(item => ({ month: item._id, count: item.count })),
@@ -221,7 +237,11 @@ router.get('/analytics', async (req, res) => {
             customerGrowth: customerGrowth.map(item => ({ month: item._id, count: item.count })),
             cancellationData,
             totalRefunds
-        });
+        };
+
+        cache.set('admin:analytics', analyticsData, TTL.SHORT);
+        console.log('💾 Cache Miss: Advanced Analytics (Stored)');
+        res.json(analyticsData);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
