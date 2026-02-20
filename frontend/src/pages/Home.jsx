@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
+import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import CarCard from '../components/cars/CarCard';
@@ -13,29 +14,21 @@ const Home = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const [activeFleetTab, setActiveFleetTab] = useState('ALL');
-    const [cars, setCars] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [selectedCar, setSelectedCar] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Real-time Fleet Data
+    const { data: carsRes, isLoading: loading } = useQuery({
+        queryKey: ['fleet'],
+        queryFn: () => api.get('/cars'),
+    });
+
+    const cars = carsRes?.data || [];
 
     const handleRentNow = (car) => {
         setSelectedCar(car);
         setIsModalOpen(true);
     };
-
-    useEffect(() => {
-        const fetchCars = async () => {
-            try {
-                const response = await api.get('/cars');
-                setCars(response.data);
-            } catch (error) {
-                console.error('Error fetching cars:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchCars();
-    }, []);
 
     const filteredCars = activeFleetTab === 'ALL'
         ? cars

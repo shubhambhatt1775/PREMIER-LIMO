@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
     Check, X, Clock, DollarSign, Users, Car,
@@ -15,122 +16,126 @@ import FleetManagement from './FleetManagement';
 const AdminDashboard = () => {
     const { logout } = useAuth();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [activeSection, setActiveSection] = useState('overview');
-    const [requests, setRequests] = useState([]);
-    const [customers, setCustomers] = useState([]);
-    const [payments, setPayments] = useState([]);
-    const [rideHistory, setRideHistory] = useState([]);
-    const [licenses, setLicenses] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statsData, setStatsData] = useState({
+    const [selectedBooking, setSelectedBooking] = useState(null);
+    const [showHandoverModal, setShowHandoverModal] = useState(false);
+    const [otpInput, setOtpInput] = useState('');
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    // Queries for Real-time Data
+    const { data: statsRes, isLoading: statsLoading } = useQuery({
+        queryKey: ['admin-stats'],
+        queryFn: () => api.get('/admin/stats'),
+        refetchInterval: 30000, // Refresh stats every 30 seconds
+    });
+
+    const { data: bookingsRes, isLoading: bookingsLoading } = useQuery({
+        queryKey: ['bookings'],
+        queryFn: () => api.get('/bookings'),
+        refetchInterval: 60000, // Refresh bookings every minute
+    });
+
+    const { data: customersRes, isLoading: customersLoading } = useQuery({
+        queryKey: ['admin-customers'],
+        queryFn: () => api.get('/admin/customers'),
+        enabled: activeSection === 'customers',
+    });
+
+    const { data: paymentsRes, isLoading: paymentsLoading } = useQuery({
+        queryKey: ['payments'],
+        queryFn: () => api.get('/payments'),
+        enabled: activeSection === 'payments',
+    });
+
+    const { data: historyRes, isLoading: historyLoading } = useQuery({
+        queryKey: ['admin-history'],
+        queryFn: () => api.get('/handover/history/admin'),
+        enabled: activeSection === 'history',
+    });
+
+    const { data: licensesRes, isLoading: licensesLoading } = useQuery({
+        queryKey: ['admin-licenses'],
+        queryFn: () => api.get('/admin/licenses'),
+        enabled: activeSection === 'licenses',
+    });
+
+    // Mutations for UI and Data Updates
+    const updateBookingStatus = useMutation({
+        mutationFn: ({ id, status }) => api.patch(`/bookings/${id}/status`, { status }),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['bookings']);
+            queryClient.invalidateQueries(['admin-stats']);
+        },
+        onError: (err) => alert(err.response?.data?.message || 'Failed to update booking status'),
+    });
+
+    const updateLicenseStatus = useMutation({
+        mutationFn: ({ id, status }) => api.patch(`/admin/licenses/${id}/status`, { status }),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['admin-licenses']);
+            alert('License status updated!');
+        },
+        onError: (err) => alert(err.response?.data?.message || 'Error updating license status'),
+    });
+
+    const verifyOTPMutation = useMutation({
+        mutationFn: ({ type, id, otp }) => {
+            const endpoint = type === 'pickup'
+                ? `/handover/verify-pickup-otp/${id}`
+                : `/handover/verify-dropoff-otp/${id}`;
+            return api.post(endpoint, { otp });
+        },
+        onSuccess: (_, variables) => {
+            setOtpInput('');
+            queryClient.invalidateQueries(['handover-status', variables.id]);
+            queryClient.invalidateQueries(['bookings']);
+            queryClient.invalidateQueries(['admin-stats']);
+            alert(`${variables.type === 'pickup' ? 'Pickup' : 'Dropoff'} verified!`);
+        },
+        onError: (err) => alert(err.response?.data?.message || 'Error verifying OTP'),
+    });
+
+    // Sub-query for Handover Status
+    const { data: handoverRes } = useQuery({
+        queryKey: ['handover-status', selectedBooking?._id],
+        queryFn: () => api.get(`/handover/status/${selectedBooking._id}`),
+        enabled: !!selectedBooking?._id && showHandoverModal,
+    });
+
+    const handleAction = (id, newStatus) => {
+        updateBookingStatus.mutate({ id, status: newStatus });
+    };
+
+    const handleManageHandover = (booking) => {
+        setSelectedBooking(booking);
+        setShowHandoverModal(true);
+    };
+
+    const verifyOTP = (type) => {
+        verifyOTPMutation.mutate({ type, id: selectedBooking._id, otp: otpInput });
+    };
+
+    const handleLicenseStatus = (id, status) => {
+        updateLicenseStatus.mutate({ id, status });
+    };
+
+    // Derived Data
+    const statsData = statsRes?.data || {
         totalRevenue: '$0',
         activeBookings: '0',
         pendingRequests: '0',
         totalFleet: '0',
         totalCustomers: '0'
-    });
-    const [selectedBooking, setSelectedBooking] = useState(null);
-    const [handoverData, setHandoverData] = useState(null);
-    const [showHandoverModal, setShowHandoverModal] = useState(false);
-    const [otpInput, setOtpInput] = useState('');
-    const [verifying, setVerifying] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-
-    useEffect(() => {
-        fetchDashboardData();
-    }, [activeSection]);
-
-    const fetchDashboardData = async () => {
-        setLoading(true);
-        try {
-            const [statsRes, bookingsRes] = await Promise.all([
-                api.get('/admin/stats'),
-                api.get('/bookings')
-            ]);
-            setStatsData(statsRes.data);
-            setRequests(bookingsRes.data);
-
-            if (activeSection === 'customers') {
-                const customersRes = await api.get('/admin/customers');
-                setCustomers(customersRes.data);
-            }
-
-            if (activeSection === 'payments') {
-                // We'll need a route for this, or just fetch all payments
-                // For now let's assume api.get('/payments') exists
-                const paymentsRes = await api.get('/payments');
-                setPayments(paymentsRes.data);
-            }
-
-            if (activeSection === 'history') {
-                const historyRes = await api.get('/handover/history/admin');
-                setRideHistory(historyRes.data);
-            }
-
-            if (activeSection === 'licenses') {
-                const licensesRes = await api.get('/admin/licenses');
-                setLicenses(licensesRes.data);
-            }
-        } catch (err) {
-            console.error('Error fetching dashboard data:', err);
-        } finally {
-            setLoading(false);
-        }
     };
 
-    const handleAction = async (id, newStatus) => {
-        try {
-            await api.patch(`/bookings/${id}/status`, { status: newStatus });
-            fetchDashboardData();
-        } catch (err) {
-            console.error('Error updating booking status:', err);
-            alert('Failed to update booking status');
-        }
-    };
-
-    const handleManageHandover = async (booking) => {
-        setSelectedBooking(booking);
-        setShowHandoverModal(true);
-        fetchHandoverStatus(booking._id);
-    };
-
-    const fetchHandoverStatus = async (bookingId) => {
-        try {
-            const res = await api.get(`/handover/status/${bookingId}`);
-            setHandoverData(res.data);
-        } catch (err) {
-            console.error('Error fetching handover status:', err);
-        }
-    };
-
-    const verifyOTP = async (type) => {
-        setVerifying(true);
-        try {
-            const endpoint = type === 'pickup'
-                ? `/handover/verify-pickup-otp/${selectedBooking._id}`
-                : `/handover/verify-dropoff-otp/${selectedBooking._id}`;
-            await api.post(endpoint, { otp: otpInput });
-            setOtpInput('');
-            fetchHandoverStatus(selectedBooking._id);
-            alert(`${type === 'pickup' ? 'Pickup' : 'Dropoff'} verified!`);
-            fetchDashboardData(); // Refresh data as status might change
-        } catch (err) {
-            alert(err.response?.data?.message || 'Error verifying OTP');
-        } finally {
-            setVerifying(false);
-        }
-    };
-
-    const handleLicenseStatus = async (licenseId, status) => {
-        try {
-            await api.patch(`/admin/licenses/${licenseId}/status`, { status });
-            fetchDashboardData();
-            alert(`License ${status}!`);
-        } catch (err) {
-            alert(err.response?.data?.message || 'Error updating license status');
-        }
-    };
+    const requests = bookingsRes?.data || [];
+    const customers = customersRes?.data || [];
+    const payments = paymentsRes?.data || [];
+    const rideHistory = historyRes?.data || [];
+    const licenses = licensesRes?.data || [];
+    const loading = statsLoading || bookingsLoading; // Initial load indicators
 
     const stats = [
         { label: 'Total Revenue', value: statsData.totalRevenue, icon: <DollarSign size={20} />, class: styles.iconGreen },
@@ -638,17 +643,17 @@ const AdminDashboard = () => {
 
                         <div className={styles.handoverInfo}>
                             <p><strong>Customer:</strong> {selectedBooking?.userName}</p>
-                            <p><strong>Status:</strong> <span className={styles.statusBadge}>{handoverData?.status || 'None'}</span></p>
+                            <p><strong>Status:</strong> <span className={styles.statusBadge}>{handoverRes?.data?.status || 'None'}</span></p>
                         </div>
 
                         <div className={styles.handoverSections}>
                             {/* Pickup Verification */}
                             <div className={styles.handoverBox}>
                                 <h4>Pickup Verification</h4>
-                                {handoverData?.pickupVerified ? (
+                                {handoverRes?.data?.pickupVerified ? (
                                     <div className={styles.verifiedInfo}>
                                         <CheckCircle size={18} color="#22c55e" />
-                                        <span>Verified: {new Date(handoverData.pickupTime).toLocaleString()}</span>
+                                        <span>Verified: {new Date(handoverRes.data.pickupTime).toLocaleString()}</span>
                                     </div>
                                 ) : (
                                     <div className={styles.verifyAction}>
@@ -662,9 +667,9 @@ const AdminDashboard = () => {
                                         <button
                                             className={styles.verifyBtn}
                                             onClick={() => verifyOTP('pickup')}
-                                            disabled={verifying || !otpInput}
+                                            disabled={verifyOTPMutation.isLoading || !otpInput}
                                         >
-                                            Verify Pickup
+                                            {verifyOTPMutation.isLoading ? 'Verifying...' : 'Verify Pickup'}
                                         </button>
                                     </div>
                                 )}
@@ -673,12 +678,12 @@ const AdminDashboard = () => {
                             {/* Dropoff Verification */}
                             <div className={styles.handoverBox}>
                                 <h4>Dropoff Verification</h4>
-                                {!handoverData?.pickupVerified ? (
+                                {!handoverRes?.data?.pickupVerified ? (
                                     <p className={styles.mutedText}>Waiting for pickup verification...</p>
-                                ) : handoverData?.dropoffVerified ? (
+                                ) : handoverRes?.data?.dropoffVerified ? (
                                     <div className={styles.verifiedInfo}>
                                         <CheckCircle size={18} color="#22c55e" />
-                                        <span>Verified: {new Date(handoverData.dropoffTime).toLocaleString()}</span>
+                                        <span>Verified: {new Date(handoverRes.data.dropoffTime).toLocaleString()}</span>
                                     </div>
                                 ) : (
                                     <div className={styles.verifyAction}>
@@ -692,9 +697,9 @@ const AdminDashboard = () => {
                                         <button
                                             className={styles.verifyBtn}
                                             onClick={() => verifyOTP('dropoff')}
-                                            disabled={verifying || !otpInput}
+                                            disabled={verifyOTPMutation.isLoading || !otpInput}
                                         >
-                                            Verify Dropoff
+                                            {verifyOTPMutation.isLoading ? 'Verifying...' : 'Verify Dropoff'}
                                         </button>
                                     </div>
                                 )}

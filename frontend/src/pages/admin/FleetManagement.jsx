@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit2, Trash2, Search, Filter, X, Upload } from 'lucide-react';
 import api from '../../services/api';
 import axios from 'axios';
 import styles from './AdminDashboard.module.css';
 
 const FleetManagement = () => {
-    const [cars, setCars] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [uploading, setUploading] = useState(false);
     const [imageFile, setImageFile] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -18,19 +18,13 @@ const FleetManagement = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
 
-    useEffect(() => {
-        fetchCars();
-    }, []);
+    // Query for Cars
+    const { data: carsRes, isLoading } = useQuery({
+        queryKey: ['fleet'],
+        queryFn: () => api.get('/cars'),
+    });
 
-    const fetchCars = async () => {
-        try {
-            const res = await api.get('/cars');
-            setCars(res.data);
-            setLoading(false);
-        } catch (err) {
-            console.error('Fetch error:', err);
-        }
-    };
+    const cars = carsRes?.data || [];
 
     const filteredCars = cars.filter(car =>
         car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,14 +70,35 @@ const FleetManagement = () => {
         }
     };
 
-    const handleDelete = async (id) => {
+    // Mutations for Deletion and Addition
+    const deleteCarMutation = useMutation({
+        mutationFn: (id) => api.delete(`/cars/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['fleet']);
+            queryClient.invalidateQueries(['admin-stats']);
+        },
+        onError: () => alert('Error deleting car'),
+    });
+
+    const addCarMutation = useMutation({
+        mutationFn: (newCar) => api.post('/cars', newCar),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['fleet']);
+            queryClient.invalidateQueries(['admin-stats']);
+            setShowModal(false);
+            setFormData({
+                name: '', model: '', category: 'Luxury',
+                pricePerDay: '', fuel: 'Petrol', transmission: 'Automatic',
+                image: '', seats: 4
+            });
+            setImageFile(null);
+        },
+        onError: () => alert('Error adding car to database'),
+    });
+
+    const handleDelete = (id) => {
         if (window.confirm('Are you sure you want to remove this vehicle?')) {
-            try {
-                await api.delete(`/cars/${id}`);
-                fetchCars();
-            } catch (err) {
-                alert('Error deleting car');
-            }
+            deleteCarMutation.mutate(id);
         }
     };
 
@@ -96,19 +111,7 @@ const FleetManagement = () => {
             if (!imageUrl) return;
         }
 
-        try {
-            await api.post('/cars', { ...formData, image: imageUrl });
-            setShowModal(false);
-            setFormData({
-                name: '', model: '', category: 'Luxury',
-                pricePerDay: '', fuel: 'Petrol', transmission: 'Automatic',
-                image: '', seats: 4
-            });
-            setImageFile(null);
-            fetchCars();
-        } catch (err) {
-            alert('Error adding car to database');
-        }
+        addCarMutation.mutate({ ...formData, image: imageUrl });
     };
 
     return (
@@ -153,7 +156,7 @@ const FleetManagement = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? (
+                        {isLoading ? (
                             <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>Loading fleet...</td></tr>
                         ) : filteredCars.length === 0 ? (
                             <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>No vehicles found matching your search.</td></tr>

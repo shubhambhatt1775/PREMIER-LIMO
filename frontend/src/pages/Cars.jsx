@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import CarCard from '../components/cars/CarCard';
@@ -7,28 +8,18 @@ import api from '../services/api';
 import styles from './Cars.module.css';
 
 const Cars = () => {
-    const [cars, setCars] = useState([]);
-    const [loading, setLoading] = useState(true);
-
+    const navigate = useNavigate();
     const [selectedCar, setSelectedCar] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState('ALL');
 
-    useEffect(() => {
-        const fetchCars = async () => {
-            try {
-                const response = await api.get('/cars');
-                setCars(response.data);
-            } catch (error) {
-                console.error('Error fetching cars:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchCars();
-    }, []);
+    // Real-time Fleet Data
+    const { data: carsRes, isLoading: loading } = useQuery({
+        queryKey: ['fleet'],
+        queryFn: () => api.get('/cars'),
+    });
 
-    const navigate = useNavigate();
+    const cars = carsRes?.data || [];
 
     const handleRentNow = (car) => {
         navigate(`/cars/${car._id}`);

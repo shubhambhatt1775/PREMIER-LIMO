@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Download, CreditCard, Clock, CheckCircle, Car as CarIcon, AlertCircle, Key, Check, X, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -9,105 +10,87 @@ import styles from './UserBookings.module.css';
 const UserBookings = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [bookings, setBookings] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [selectedBooking, setSelectedBooking] = useState(null);
-    const [handoverData, setHandoverData] = useState(null);
     const [showOTPModal, setShowOTPModal] = useState(false);
-    const [generatingOTP, setGeneratingOTP] = useState(false);
     const [activeTab, setActiveTab] = useState('active');
-    const [history, setHistory] = useState([]);
-    const [manualHistory, setManualHistory] = useState([]);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [reviewBooking, setReviewBooking] = useState(null);
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
-    const [submittingReview, setSubmittingReview] = useState(false);
 
-    useEffect(() => {
-        if (user && user._id) {
-            fetchUserBookings();
-            fetchHistory();
-        }
-    }, [user]);
+    // Queries for Bookings and History
+    const { data: bookingsRes, isLoading: bookingsLoading } = useQuery({
+        queryKey: ['user-bookings', user?._id],
+        queryFn: () => api.get(`/bookings/user/${user._id}`),
+        enabled: !!user?._id,
+        refetchInterval: 30000, // Poll for approval status every 30s
+    });
 
-    const fetchUserBookings = async () => {
-        try {
-            const res = await api.get(`/bookings/user/${user._id}`);
-            // Active bookings are those not completed
-            const active = res.data.filter(b => b.status !== 'completed');
-            setBookings(active);
+    const { data: historyRes, isLoading: historyLoading } = useQuery({
+        queryKey: ['user-history', user?._id],
+        queryFn: () => api.get(`/handover/history/user/${user._id}`),
+        enabled: !!user?._id,
+    });
 
-            // Also include completed bookings that might not be in the RideHistory collection yet
-            const manualHistory = res.data.filter(b => b.status === 'completed');
-            setManualHistory(manualHistory);
-        } catch (err) {
-            console.error('Error fetching bookings:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Sub-query for Handover Status in Modal
+    const { data: handoverRes } = useQuery({
+        queryKey: ['handover-status', selectedBooking?._id],
+        queryFn: () => api.get(`/handover/status/${selectedBooking._id}`),
+        enabled: !!selectedBooking?._id && showOTPModal,
+        refetchInterval: 10000, // Faster polling while modal is open to see admin verification
+    });
 
-    const fetchHistory = async () => {
-        try {
-            const res = await api.get(`/handover/history/user/${user._id}`);
-            setHistory(res.data);
-        } catch (err) {
-            console.error('Error fetching history:', err);
-        }
-    };
-
-    const handleHandoverAction = async (booking) => {
-        setSelectedBooking(booking);
-        setShowOTPModal(true);
-        fetchHandoverStatus(booking._id);
-    };
-
-    const fetchHandoverStatus = async (bookingId) => {
-        try {
-            const res = await api.get(`/handover/status/${bookingId}`);
-            setHandoverData(res.data);
-        } catch (err) {
-            console.error('Error fetching handover status:', err);
-        }
-    };
-
-    const generateOTP = async (type) => {
-        setGeneratingOTP(true);
-        try {
+    // Mutations
+    const generateOTPMutation = useMutation({
+        mutationFn: ({ type, id }) => {
             const endpoint = type === 'pickup'
-                ? `/handover/generate-pickup-otp/${selectedBooking._id}`
-                : `/handover/generate-dropoff-otp/${selectedBooking._id}`;
-            const res = await api.post(endpoint);
-            setHandoverData(prev => ({ ...prev, [type === 'pickup' ? 'pickupOTP' : 'dropoffOTP']: res.data.otp }));
-            fetchHandoverStatus(selectedBooking._id);
-        } catch (err) {
-            alert(err.response?.data?.message || 'Error generating OTP');
-        } finally {
-            setGeneratingOTP(false);
-        }
-    };
+                ? `/handover/generate-pickup-otp/${id}`
+                : `/handover/generate-dropoff-otp/${id}`;
+            return api.post(endpoint);
+        },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries(['handover-status', variables.id]);
+        },
+        onError: (err) => alert(err.response?.data?.message || 'Error generating OTP'),
+    });
 
-    const submitReview = async () => {
-        setSubmittingReview(true);
-        try {
-            await api.post('/reviews', {
-                bookingId: reviewBooking.booking || reviewBooking._id,
-                carId: reviewBooking.car,
-                userId: user._id,
-                userName: user.name,
-                rating,
-                comment
-            });
+    const submitReviewMutation = useMutation({
+        mutationFn: (reviewData) => api.post('/reviews', reviewData),
+        onSuccess: () => {
             alert('Thank you for your review!');
             setShowReviewModal(false);
             setComment('');
             setRating(5);
-        } catch (err) {
-            alert(err.response?.data?.message || 'Error submitting review');
-        } finally {
-            setSubmittingReview(false);
-        }
+        },
+        onError: (err) => alert(err.response?.data?.message || 'Error submitting review'),
+    });
+
+    // Data Processing
+    const allBookings = bookingsRes?.data || [];
+    const bookings = allBookings.filter(b => b.status !== 'completed');
+    const manualHistory = allBookings.filter(b => b.status === 'completed');
+    const history = historyRes?.data || [];
+    const loading = bookingsLoading || historyLoading;
+
+    const handleHandoverAction = (booking) => {
+        setSelectedBooking(booking);
+        setShowOTPModal(true);
+    };
+
+    const generateOTP = (type) => {
+        generateOTPMutation.mutate({ type, id: selectedBooking._id });
+    };
+
+    const submitReview = () => {
+        submitReviewMutation.mutate({
+            bookingId: reviewBooking.booking || reviewBooking._id,
+            carId: reviewBooking.car,
+            userId: user._id,
+            userName: user.name,
+            rating,
+            comment
+        });
     };
 
     return (
@@ -341,9 +324,9 @@ const UserBookings = () => {
                                 className="btn-primary"
                                 style={{ width: '100%', marginTop: '1rem' }}
                                 onClick={submitReview}
-                                disabled={submittingReview}
+                                disabled={submitReviewMutation.isLoading}
                             >
-                                {submittingReview ? 'Submitting...' : 'Submit Review'}
+                                {submitReviewMutation.isLoading ? 'Submitting...' : 'Submit Review'}
                             </button>
                         </div>
                     </motion.div>
@@ -368,25 +351,25 @@ const UserBookings = () => {
                             {/* Pickup Section */}
                             <div className={styles.handoverBox}>
                                 <h3><CarIcon size={20} /> Pickup Handover</h3>
-                                {handoverData?.pickupVerified ? (
+                                {handoverRes?.data?.pickupVerified ? (
                                     <div className={styles.verifiedBadge}>
                                         <CheckCircle size={20} />
-                                        <span>Verified on {new Date(handoverData.pickupTime).toLocaleString()}</span>
+                                        <span>Verified on {new Date(handoverRes.data.pickupTime).toLocaleString()}</span>
                                     </div>
                                 ) : (
                                     <div className={styles.otpAction}>
-                                        {handoverData?.pickupOTP ? (
+                                        {handoverRes?.data?.pickupOTP ? (
                                             <div className={styles.otpDisplay}>
                                                 <span className={styles.otpLabel}>Give this OTP to Admin:</span>
-                                                <div className={styles.otpValue}>{handoverData.pickupOTP}</div>
+                                                <div className={styles.otpValue}>{handoverRes.data.pickupOTP}</div>
                                             </div>
                                         ) : (
                                             <button
                                                 className="btn-primary"
                                                 onClick={() => generateOTP('pickup')}
-                                                disabled={generatingOTP}
+                                                disabled={generateOTPMutation.isLoading}
                                             >
-                                                Generate Pickup OTP
+                                                {generateOTPMutation.isLoading ? 'Generating...' : 'Generate Pickup OTP'}
                                             </button>
                                         )}
                                     </div>
@@ -396,27 +379,27 @@ const UserBookings = () => {
                             {/* Dropoff Section */}
                             <div className={styles.handoverBox}>
                                 <h3><Download size={20} /> Dropoff/Return</h3>
-                                {!handoverData?.pickupVerified ? (
+                                {!handoverRes?.data?.pickupVerified ? (
                                     <p className={styles.infoText}>Available after car pickup.</p>
-                                ) : handoverData?.dropoffVerified ? (
+                                ) : handoverRes?.data?.dropoffVerified ? (
                                     <div className={styles.verifiedBadge}>
                                         <CheckCircle size={20} />
-                                        <span>Returned on {new Date(handoverData.dropoffTime).toLocaleString()}</span>
+                                        <span>Returned on {new Date(handoverRes.data.dropoffTime).toLocaleString()}</span>
                                     </div>
                                 ) : (
                                     <div className={styles.otpAction}>
-                                        {handoverData?.dropoffOTP ? (
+                                        {handoverRes?.data?.dropoffOTP ? (
                                             <div className={styles.otpDisplay}>
                                                 <span className={styles.otpLabel}>Give this OTP to Admin:</span>
-                                                <div className={styles.otpValue}>{handoverData.dropoffOTP}</div>
+                                                <div className={styles.otpValue}>{handoverRes.data.dropoffOTP}</div>
                                             </div>
                                         ) : (
                                             <button
                                                 className="btn-primary"
                                                 onClick={() => generateOTP('dropoff')}
-                                                disabled={generatingOTP}
+                                                disabled={generateOTPMutation.isLoading}
                                             >
-                                                Generate Dropoff OTP
+                                                {generateOTPMutation.isLoading ? 'Generating...' : 'Generate Dropoff OTP'}
                                             </button>
                                         )}
                                     </div>
